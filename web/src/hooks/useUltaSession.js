@@ -152,14 +152,14 @@ export default function useUltaSession() {
     } catch {
       dispatch({
         type: "DIAGNOSIS_REJECTED",
-        reason: "Chintu could not reach the diagnosis service. Check the connection and try the photo again.",
+        reason: "Chintu could not reach the diagnosis service. Check the connection and try your explanation or page again.",
       });
       return;
     }
     if (response?.diagnosable === false || response?.misconception_id === "UNKNOWN") {
       dispatch({
         type: "DIAGNOSIS_REJECTED",
-        reason: response?.reason || "No clear conceptual error was visible. Include the full question and a sharper view of the working.",
+        reason: response?.reason || "No clear conceptual error was evidenced. Include the full question and explain or show how you reached the answer.",
       });
       return;
     }

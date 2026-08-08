@@ -22,6 +22,17 @@ test("entry and session retain the product hierarchy", async ({ page }) => {
   expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test("typed reasoning can start without a photo", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Type instead" }).click();
+  await page.locator(".upload-screen__voice-start .mic-control__fallback input")
+    .fill("I used b over a for the product of roots because b is the coefficient beside x.");
+  await page.locator(".upload-screen__voice-start .mic-control__fallback button").click();
+  await expect(page.getByLabel("Your question and reasoning")).toHaveValue(/product of roots/);
+  await page.getByRole("button", { name: "Start from my explanation" }).click();
+  await expect(page.locator(".session-screen")).toBeVisible();
+});
+
 test("one-click voice creates exactly one turn and releases the stream", async ({ page }) => {
   await page.addInitScript(() => {
     const track = { stopped: false, stop() { this.stopped = true; } };

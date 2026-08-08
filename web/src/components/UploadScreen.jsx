@@ -56,9 +56,9 @@ export default function UploadScreen({ stage, issue, onStart }) {
   }
 
   async function start() {
-    if (!file || diagnosing) return;
-    const imageBase64 = await fileToBase64(file);
-    const handwritingUrl = `data:${file.type || "image/jpeg"};base64,${imageBase64}`;
+    if ((!file && !questionText.trim()) || diagnosing) return;
+    const imageBase64 = file ? await fileToBase64(file) : undefined;
+    const handwritingUrl = file ? `data:${file.type || "image/jpeg"};base64,${imageBase64}` : null;
     onStart({ imageBase64, questionText: questionText || undefined, handwritingUrl });
   }
 
@@ -68,10 +68,10 @@ export default function UploadScreen({ stage, issue, onStart }) {
       <div className="ambient-orb ambient-orb--two" />
 
       <section className="upload-screen__intro">
-        <span className="upload-screen__eyebrow">Teach-back learning, powered by Vision</span>
+        <span className="upload-screen__eyebrow">Multimodal teach-back learning</span>
         <h1 className="upload-screen__logo">{copy.appName}</h1>
         <p className="upload-screen__tagline">{copy.tagline}</p>
-        <p className="upload-screen__promise">Show Chintu your working. He picks up the idea behind the mistake, then you teach him out of it.</p>
+        <p className="upload-screen__promise">Tell or show Chintu how you reasoned. He picks up the idea behind the mistake, then you teach him out of it.</p>
         <div className="upload-screen__chips" aria-label="How it works">
           <span>Scan any subject</span><span>Talk naturally</span><span>Prove it transfers</span>
         </div>
@@ -79,7 +79,7 @@ export default function UploadScreen({ stage, issue, onStart }) {
       </section>
 
       <section className="upload-screen__card">
-        <span className="upload-screen__step">01 · Bring your work</span>
+        <span className="upload-screen__step">01 · Start anywhere</span>
         <h2>{copy.upload.heading}</h2>
         <p className="upload-screen__sub">{copy.upload.sub}</p>
 
@@ -101,7 +101,7 @@ export default function UploadScreen({ stage, issue, onStart }) {
           />
         </div>
 
-        <div className="upload-screen__or"><span>or bring a page</span></div>
+        <div className="upload-screen__or"><span>add a page for sharper diagnosis</span></div>
 
         <button
           type="button"
@@ -136,9 +136,9 @@ export default function UploadScreen({ stage, issue, onStart }) {
           type="button"
           className="upload-screen__cta"
           onClick={start}
-          disabled={!file || diagnosing}
+          disabled={(!file && !questionText.trim()) || diagnosing}
         >
-          {diagnosing ? copy.upload.diagnosing : copy.upload.cta}
+          {diagnosing ? copy.upload.diagnosing : file ? copy.upload.cta : copy.upload.voiceCta}
         </button>
       </section>
     </main>

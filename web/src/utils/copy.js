@@ -6,13 +6,14 @@ export const copy = {
   tagline: "Don't ask AI. Teach it.",
 
   upload: {
-    heading: "What were you working on?",
-    sub: "Upload a clear page from maths, science, or another academic subject. Include the question for the sharpest diagnosis.",
-    questionLabel: "Question text (optional)",
-    questionPlaceholder: "Type the question you were solving",
+    heading: "Where should we begin?",
+    sub: "Speak, type, or show your work. Describe what you tried—not only the topic—so Chintu can pick up the exact idea to debate.",
+    questionLabel: "Your question and reasoning",
+    questionPlaceholder: "What was the question, what answer did you get, and why?",
     voiceHeading: "Start by talking",
-    voiceSub: "Ask Chintu what you are stuck on. Add your working below so Vision can find the idea behind it.",
+    voiceSub: "Tell Chintu the question, your answer, and how you got there. You can add a page too, but it is no longer required.",
     cta: "Let Chintu inspect it",
+    voiceCta: "Start from my explanation",
     diagnosing: "Reading every step…",
   },
 
