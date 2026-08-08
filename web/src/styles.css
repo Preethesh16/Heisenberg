@@ -132,6 +132,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .upload-screen__card h2 { margin: 2px 0 -9px; font-size: 27px; letter-spacing: -0.035em; }
 .upload-screen__sub { margin: 0; color: var(--ink-soft); font-size: 14px; }
 .upload-screen__issue { margin: 0; padding: 11px 13px; border-radius: 13px; color: #7e3846; background: #fff0f3; border: 1px solid #f4ccd5; font-size: 13px; }
+.upload-screen__voice-start { display:grid; gap:10px; padding:14px; border:1px solid rgba(120,102,220,.18); border-radius:18px; background:linear-gradient(135deg,rgba(246,243,255,.94),rgba(255,250,247,.94)); }
+.upload-screen__voice-start > div:first-child { display:flex; flex-direction:column; gap:4px; }
+.upload-screen__voice-start strong { color:var(--ink); font-size:14px; }
+.upload-screen__voice-start span { color:var(--ink-soft); font-size:12px; line-height:1.45; }
+.upload-screen__voice-start .mic-control { padding:0; border:0; box-shadow:none; background:transparent; }
+.upload-screen__voice-start .mic-control__meta { padding-left:0; padding-right:0; }
+.upload-screen__or { display:flex; align-items:center; gap:10px; color:#948ca7; font-size:11px; font-weight:760; text-transform:uppercase; letter-spacing:.12em; }
+.upload-screen__or::before, .upload-screen__or::after { content:""; height:1px; flex:1; background:var(--line); }
 
 .upload-screen__drop {
   position: relative;

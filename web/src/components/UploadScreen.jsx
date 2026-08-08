@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { copy } from "../utils/copy";
 import Chintu from "./Chintu";
+import MicControl from "./MicControl";
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -32,6 +33,8 @@ export default function UploadScreen({ stage, issue, onStart }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [questionText, setQuestionText] = useState("");
+  const [lang, setLang] = useState("en");
+  const [voiceIssue, setVoiceIssue] = useState(false);
   const inputRef = useRef(null);
   const previewRef = useRef(null);
   const diagnosing = stage === "diagnosing";
@@ -81,6 +84,24 @@ export default function UploadScreen({ stage, issue, onStart }) {
         <p className="upload-screen__sub">{copy.upload.sub}</p>
 
         {issue && <p className="upload-screen__issue" role="status">{issue}</p>}
+
+        <div className="upload-screen__voice-start">
+          <div>
+            <strong>{copy.upload.voiceHeading}</strong>
+            <span>{copy.upload.voiceSub}</span>
+          </div>
+          <MicControl
+            sessionId={null}
+            lang={lang}
+            onLangChange={setLang}
+            onStudentText={setQuestionText}
+            sttFallbackActive={voiceIssue}
+            onSttFallback={() => setVoiceIssue(true)}
+            disabled={diagnosing}
+          />
+        </div>
+
+        <div className="upload-screen__or"><span>or bring a page</span></div>
 
         <button
           type="button"

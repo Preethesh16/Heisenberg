@@ -10,6 +10,8 @@ export const copy = {
     sub: "Upload a clear page from maths, science, or another academic subject. Include the question for the sharpest diagnosis.",
     questionLabel: "Question text (optional)",
     questionPlaceholder: "Type the question you were solving",
+    voiceHeading: "Start by talking",
+    voiceSub: "Ask Chintu what you are stuck on. Add your working below so Vision can find the idea behind it.",
     cta: "Let Chintu inspect it",
     diagnosing: "Reading every step…",
   },
