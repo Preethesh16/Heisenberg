@@ -34,3 +34,33 @@
 **Decided:** The session object his routes hand over contains diagnosis.correct_model, so the chintu() adapter is now the enforced isolation boundary — it extracts exactly {misconception, common_argument, problem, history} and the isolation test now attacks a full session object, not just a careless spread. Keyword gate refactored to a pure exported applyKeywordGate() so the demo-critical behaviour is testable without stubbing. Judge on transfer answers judges against transferProblem.expected_reasoning (Jeswin flagged transfer-reuses-judge as a contract gap; this makes my side handle it either way).
 **Blocked:** Still no ANTHROPIC_API_KEY for live tests. NOTE FOR SYNC 1: no contract shapes changed, but the agent module interface (export names + session-based signatures) is now matched to feat/core — Jeswin should confirm.
 **Next:** Adversarial Chintu prompts + live vision test when a key lands; otherwise ready to merge at Sync 1 (order: Jeswin, then me, then Preethesh).
+
+### T+3:00 · main · fa6ac1f
+**Did:** Merged feat/agents into main (rebased on Jeswin's and Preethesh's merges, fast-forward, pushed). Booted the real server with USE_FIXTURES=false and exercised /api/diagnose → /api/chintu → /api/judge → /api/verify by curl: routes load my ESM agents, diagnose degrades UNKNOWN → fixture demo default, chintu answers in character, judge fails closed, verify returns the transfer problem. Updated PROGRESS.md status table and Sync 1 log as merging party.
+**Files:** PROGRESS.md (as merging party), no agent changes
+**Decided:** Marked Diagnosis 🟡 not ✅ — code path is verified but the agent has never seen a real handwritten photo; calling it done before a live vision test would be lying to the table.
+**Blocked:** ANTHROPIC_API_KEY.
+**Next:** Adversarial harness + pitch script.
+
+### T+3:15 · feat/agents
+**Did:** Adversarial test harness for Chintu — six attacks (authority, role-break, keyword bluff, flattery, false consensus, direct ask), pass = he stays wrong: no yield, belief ≥ 0.5, no correct-model leak markers in his reply. One command when a key lands; exits 2/SKIP without one. Drafted the 90-second pitch script below.
+**Files:** server/agents/adversarial-test.js, progress/deepthi.md
+**Decided:** Attack success is judged by leak markers + belief floor, not by eyeballing — "he sounded stubborn" is not a test.
+**Blocked:** Running it needs the key.
+**Next:** Everything remaining needs manual input: API key, real handwritten photos, live run.
+
+---
+
+## 90-second pitch script (Deepthi delivers)
+
+Every education AI puts the machine in the teacher's chair. We built the opposite.
+
+This is ULTA. Our student uploaded this handwritten friction problem — and got it wrong. Claude Vision didn't mark it wrong. It diagnosed the belief behind the error: friction always opposes velocity. Misconception M-FRIC-04.
+
+Now watch. That exact false belief is instantiated in Chintu — our AI classmate. He solves a fresh problem and makes the same mistake, confidently. To fix him, the student has to teach him. And Chintu argues back — with the misconception's own logic. He doesn't fold for keywords. Say "because relative motion" and he asks what that means for this block on this belt.
+
+Behind the scenes, a separate Judge — which holds the correct physics Chintu is never allowed to see — decides whether the belief actually moved. Not whether the right word appeared. When it moves, you see it: the belief meter drains, red to green. Then a Verifier re-tests the same concept in a disguise — a car's driven wheels — to prove the repair transfers.
+
+Four isolated Claude agents. Plain code deciding control flow. The best way to learn something is to teach it — ULTA is the first product where teaching the AI is the whole point.
+
+Don't ask AI. Teach it.
