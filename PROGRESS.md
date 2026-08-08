@@ -16,6 +16,10 @@
 | **Last merge** | — | — | — |
 | **Blocked on** | — | — | — |
 
+### UI planning note
+
+The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.framer.website/): warm, approachable, rounded, spacious, and centred on one clear action at a time. For ULTA, that means a debate-first session screen where Chintu, the belief meter, captions, and stage rail remain dominant. The existing `Chintu.jsx` is the avatar reference; wire its emotion states, gestures, belief-threshold surprise flash, Maya lip-sync, and reduced-motion fallback without altering the component.
+
 ## Component state
 
 | Component | Owner | Status | Notes |

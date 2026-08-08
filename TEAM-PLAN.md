@@ -4,6 +4,8 @@
 **Budget:** 4h30m
 **Rule that makes this work:** you own folders, not features. Nobody edits outside their folder without asking. That's what keeps three branches from fighting.
 
+**UI reference:** use [my AI Tutor](https://myaitutor.framer.website/) for its warm, rounded, spacious learning-product feel. Adapt those principles to ULTA's debate-first flow; do not copy the reference site's layout or copy.
+
 ---
 
 ## 1. Ownership map
@@ -39,7 +41,7 @@ Do not split up yet. Twenty minutes here saves ninety later.
 
 **Jeswin** — Server up. All six routes returning fixtures. Session state machine. `USE_FIXTURES` flag. Get `/api/stt` talking to Sarvam and `/api/tts` talking to Maya as soon as the routes exist — voice providers are your unknown, and unknowns go early, not last.
 
-**Preethesh** — App shell, routing, and the session screen from `ULTA-DESIGN.md` §36. Drop in `Chintu.jsx` as-is. Wire the whole flow to fixtures. By T+1:30 someone should be able to click through a complete fake session with no server logic behind it.
+**Preethesh** — App shell, routing, and the session screen from `ULTA-DESIGN.md` §36, using the reference site's approachable rounded surfaces and clear primary action. Drop in the existing `Chintu.jsx` as-is. Wire the whole flow to fixtures. By T+1:30 someone should be able to click through a complete fake session with no server logic behind it.
 
 **SYNC 1 — T+1:30 (10 min, hard stop).** Everyone merges to `main`. Whoever merges last updates the status table in `PROGRESS.md`. Anything blocked gets raised now, not silently absorbed.
 
@@ -49,7 +51,7 @@ Do not split up yet. Twenty minutes here saves ninety later.
 
 **Jeswin** — Replace fixture responses with real agent calls as Deepthi lands them. Audio pipeline end to end: mic → Sarvam → Claude → Maya → speaker. Handle the three lip-sync gotchas in `ULTA-DESIGN.md` §39.
 
-**Preethesh** — Belief meter with the 400ms reaction lag. Emotion wiring. Captions. Handwriting thumbnail. Stage rail.
+**Preethesh** — Belief meter with the 400ms reaction lag. Wire Chintu's emotion, belief strength, gesture, speaking, and audio-ref inputs; preserve its surprise flash, lip-sync fallback, and reduced-motion support. Captions. Handwriting thumbnail. Stage rail.
 
 **SYNC 2 — T+2:45 (10 min).** Merge. **Decision point:** is a real end-to-end session running? If yes, continue. If no, cut the Verifier and Transfer stage entirely and spend the rest polishing Diagnose → Debate → Judge. A flawless three-stage demo beats a broken four-stage one.
 
@@ -154,7 +156,7 @@ Paste your own into Claude Code after cloning. All three assume `CLAUDE.md` and 
 >
 > Task 1: React app with the session screen from ULTA-DESIGN.md §36 — role banner, misconception card, Chintu panel with belief meter, transcript with captions, hold-to-talk mic, stage rail.
 > Task 2: wire it to the fixture endpoints so a full session clicks through with no real agents.
-> Task 3: `Chintu.jsx` is already written — import it, don't rewrite it.
+> Task 3: the existing `Chintu.jsx` is already written — import it, don't rewrite it. Pass Agent 2's emotion, belief strength, and gesture; pass Maya speaking/audio state for lip-sync. Preserve its surprise flash and reduced-motion behaviour.
 >
 > Belief meter drains and changes colour red → amber → green; face and meter update 400ms after the student's turn, never instantly. Append to `progress/preethesh.md` after each commit. Commit as `[web] ...` with no AI co-author trailer.
 

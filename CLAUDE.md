@@ -137,3 +137,9 @@ Sentence case everywhere. Active voice. Plain words.
 **Never write praise copy** — no "Correct!", no "Great job!", no "Well done!". Praise restores the AI-as-authority relationship the product exists to break. The interface reports what happened to the belief, not how the student performed. The success state is `M-FRIC-04 DEFEATED`, and the achievement unit is a belief corrected, not a question completed.
 
 Chintu talks like a real Indian classmate — "Nahi yaar", "but sir also taught this", "are you sure?" — not like an assistant. He is never sycophantic, never apologises for arguing, and never breaks character to be helpful.
+
+### UI direction and reference
+
+Use [my AI Tutor](https://myaitutor.framer.website/) as inspiration for a warm, approachable learning-product feel: generous spacing, rounded surfaces, clear hierarchy, friendly colour, and one focused primary action. Treat it as inspiration, not a layout to clone. ULTA's visual centre remains the live misconception debate, belief meter, captions, and Chintu.
+
+`Chintu.jsx` is the existing avatar body and must be imported and wired, not rewritten. It supports nine emotion states, belief-based fallback emotion, a surprise flash when belief crosses below 0.5, `nod`/`point_board` gestures, optional Maya audio lip-sync, and reduced-motion behaviour. The UI exposes those states; it does not add frontend reasoning.
