@@ -34,3 +34,10 @@
 **Decided:** Mic failure (denied permission or STT error) reveals a persistent text input and the session continues — never an error screen, per CONTRACTS.md §3. One <audio> element for the whole session with src swapped per turn, because createMediaElementSource runs once per element (ULTA-DESIGN §39). Defeat screen animates solve → explain → spot so SPOT lands last, then "M-FRIC-04 DEFEATED"; correct_model renders only here, after the belief is already repaired. Teacher dashboard is one static image that hides itself if the screenshot isn't present.
 **Blocked:** No. Build passes, dev server boots, praise-copy grep is clean.
 **Next:** Real-device pass on mic hold-to-talk, screenshot asset for the dashboard slide, then swap VITE_USE_MOCKS=false when Jeswin's routes land.
+
+### T+1:40 · feat/web · a54bf8e
+**Did:** Static teacher dashboard slide (SVG, no live data), mic hardening, and a real browser end-to-end run of the whole session — upload → diagnosis → three teaching turns → judge pass → transfer → defeat screen, all green. Belief drained 92 → 78 → 44 → done; correct_model confirmed absent from the debate screens; mic failure produced the text input, never an error.
+**Files:** web/public/teacher-dashboard.svg, web/src/components/TeacherDashboardPreview.jsx, web/src/components/MicControl.jsx
+**Decided:** Mic uses pointer events with capture instead of mouse+touch pairs — one code path for both, and release-outside-the-button still ends the recording. setPointerCapture is wrapped in try/catch and startRecording bails to the text fallback when MediaRecorder or getUserMedia is missing, because the e2e run proved a throw there would otherwise eat the handler. Dashboard is an SVG so it stays a crisp static slide with zero build tooling.
+**Blocked:** No. Full session verified end to end in headless Chromium; screenshots of session and defeat screens checked by eye.
+**Next:** Flip VITE_USE_MOCKS=false when the real routes exist; hold the fixture flag during the demo.

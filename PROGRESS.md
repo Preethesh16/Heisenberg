@@ -12,9 +12,9 @@
 
 | | Deepthi · `feat/agents` | Jeswin · `feat/core` | Preethesh · `feat/web` |
 |---|---|---|---|
-| **Now** | not started | not started | not started |
-| **Last merge** | — | — | — |
-| **Blocked on** | — | — | — |
+| **Now** | not started | not started | full mock session done, verified end to end |
+| **Last merge** | — | — | a54bf8e |
+| **Blocked on** | — | — | real routes from feat/core to flip VITE_USE_MOCKS=false |
 
 ### UI planning note
 
@@ -35,11 +35,11 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 | Orchestrator state machine | J | ⬜ | |
 | Sarvam STT | J | ⬜ | |
 | Maya TTS | J | ⬜ | |
-| App shell + session screen | P | ⬜ | |
-| Chintu avatar wired | P | ⬜ | component already written |
-| Belief meter | P | ⬜ | 400ms lag, red→amber→green |
-| Captions | P | ⬜ | never optional |
-| Defeat screen | P | ⬜ | SPOT bar animates last |
+| App shell + session screen | P | ✅ | §36 anatomy, browser-verified |
+| Chintu avatar wired | P | ✅ | imported as-is, isolation kept in props |
+| Belief meter | P | ✅ | 400ms lag, red→amber→green, Judge-driven |
+| Captions | P | ✅ | always render; audio is enhancement |
+| Defeat screen | P | ✅ | bars old→new, SPOT last, static dashboard slide |
 | Full loop end to end | all | ⬜ | **the only thing that must work** |
 
 ⬜ not started · 🟡 in progress · ✅ done · ⛔ blocked · ✂️ cut
@@ -77,6 +77,8 @@ Anything that changes how the system behaves. Reason is mandatory — a decision
 |---|---|---|---|
 | 0:20 | all | Contracts frozen | Three people can't build in parallel against a moving interface |
 | 0:20 | all | M-FRIC-04 is the demo | One flawless session beats five shaky ones |
+| 1:40 | P | Mock layer lives inside web/ behind VITE_USE_MOCKS | server/fixtures don't exist yet and web can't create them; flag flip swaps to real routes with zero component changes |
+| 1:40 | P | Belief meter takes the Judge's belief_strength, not Chintu's | the meter only moves when the Judge confirms the model shifted |
 | | | | |
 
 ---
