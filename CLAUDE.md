@@ -10,11 +10,11 @@ Repo context for Claude Code. Read this and `CONTRACTS.md` before doing anything
 
 A teach-the-AI learning platform for Indian competitive-exam aspirants. Every other education AI puts the machine in the teacher's chair. ULTA puts it in the student's chair.
 
-A learner uploads a handwritten solution. Claude Vision diagnoses the specific false belief behind the error. That belief is then instantiated inside a second agent — **Chintu**, a cat-avatar AI study buddy — who confidently solves a *fresh* problem and makes the same class of mistake. The learner has to catch it and teach him why he's wrong. Chintu argues back using the misconception's own logic. A separate Judge decides whether the belief actually moved, not whether the right keyword appeared. A Verifier then re-tests the concept in a different disguise.
+A learner uploads educational work. Claude Vision dynamically diagnoses the specific false belief behind the error and builds that session's concept package. That belief is then instantiated inside a second agent — **Chintu**, a cat-avatar AI study buddy — who confidently solves a *fresh* problem and makes the same class of mistake. The learner has to catch it and teach him why he's wrong. Chintu argues back using the misconception's own logic. A separate Judge decides whether the belief actually moved, not whether the right keyword appeared. A Verifier then re-tests the concept in a different disguise.
 
 The loop: **DIAGNOSE → MIRROR → TEACH → CHALLENGE → JUDGE → TRANSFER**
 
-Hackathon demo target: **JEE Physics, three misconceptions, one flawless session.**
+The three JEE Physics files remain an offline fixture story. Live sessions are not bounded to them: the knowledge, misconception, debate problem, repair criteria, and transfer contexts come from the uploaded work through Claude Vision.
 
 ---
 
@@ -107,11 +107,10 @@ Never leave the repo in a state where `main` doesn't run.
 - An LLM orchestrator, agent-to-agent autonomous messaging, or a framework
 - A live teacher dashboard (one static screenshot slide only)
 - Video generation, avatar-video services, or 3D
-- More than three misconception files before the loop works end to end
 - Auth, database, deploy pipeline, or tests beyond manual verification
 - Any "just in case" abstraction layer
 
-If a task isn't on the critical path to *one flawless M-FRIC-04 session*, it is out of scope. Say so and move on.
+Do not expand the authored fixture taxonomy to simulate dynamic support. Improve the Vision-derived live path instead.
 
 ---
 
@@ -123,7 +122,7 @@ Every provider failure degrades quietly. The learner never sees an error screen.
 |---|---|
 | Sarvam STT | Mic reveals a text input, session continues |
 | Maya TTS | Captions render, no audio, session continues |
-| Diagnosis low confidence | Falls back to demo default M-FRIC-04 |
+| Diagnosis low confidence, correct work, or unrelated image | No session is created; ask for a clearer page/full question |
 | Anything at all | `USE_FIXTURES=true` runs the full session on canned data |
 
 Fixtures are the demo safety net, not throwaway code. Keep them working all the way to the end.
@@ -142,4 +141,6 @@ Chintu talks like a real Indian classmate — "Nahi yaar", "but sir also taught 
 
 Use [my AI Tutor](https://myaitutor.framer.website/) as inspiration for a warm, approachable learning-product feel: generous spacing, rounded surfaces, clear hierarchy, friendly colour, and one focused primary action. Treat it as inspiration, not a layout to clone. ULTA's visual centre remains the live misconception debate, belief meter, captions, and Chintu.
 
-`Chintu.jsx` is the existing avatar body and must be imported and wired, not rewritten. It supports nine emotion states, belief-based fallback emotion, a surprise flash when belief crosses below 0.5, `nod`/`point_board` gestures, optional Maya audio lip-sync, and reduced-motion behaviour. The UI exposes those states; it does not add frontend reasoning.
+`Chintu.jsx` is the original full-body avatar implementation. Preserve its nine emotion states, belief-based fallback, one-time surprise flash, `nod`/`point_board` gestures, Maya amplitude lip-sync, and reduced-motion behaviour when refining it. The UI exposes agent state; it does not add frontend reasoning.
+
+Voice uses one-click turns: tap once to start listening and tap again to submit. Typed input stays available. Recording, transcription, Chintu thinking, and Chintu speaking are distinct states, and all media tracks are released on cancellation, stage change, or unmount.

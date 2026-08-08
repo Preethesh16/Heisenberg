@@ -6,6 +6,8 @@
 
 **UI reference:** use [my AI Tutor](https://myaitutor.framer.website/) for its warm, rounded, spacious learning-product feel. Adapt those principles to ULTA's debate-first flow; do not copy the reference site's layout or copy.
 
+> **Current product override (post-hackathon):** live diagnosis is dynamic across educational work and must never default an unknown upload to M-FRIC-04. Voice is one-click start/stop, not hold-to-talk. The authored three-item taxonomy remains fixture/demo data. This supersedes historical instructions below wherever they conflict.
+
 ---
 
 ## 1. Ownership map
@@ -154,9 +156,9 @@ Paste your own into Claude Code after cloning. All three assume `CLAUDE.md` and 
 
 > Read CLAUDE.md, CONTRACTS.md, and ULTA-DESIGN.md first. I own `web/` only — never edit anything under `server/` or `data/`.
 >
-> Task 1: React app with the session screen from ULTA-DESIGN.md §36 — role banner, misconception card, Chintu panel with belief meter, transcript with captions, hold-to-talk mic, stage rail.
+> Task 1: React app with the session screen from ULTA-DESIGN.md §36 — role banner, misconception card, Chintu panel with belief meter, transcript with captions, one-click start/stop mic, stage rail.
 > Task 2: wire it to the fixture endpoints so a full session clicks through with no real agents.
-> Task 3: the existing `Chintu.jsx` is already written — import it, don't rewrite it. Pass Agent 2's emotion, belief strength, and gesture; pass Maya speaking/audio state for lip-sync. Preserve its surprise flash and reduced-motion behaviour.
+> Task 3: maintain the professional full-body `Chintu.jsx`. Pass Agent 2's emotion, belief strength, and gesture plus Maya speaking/audio state. Any refinement must preserve all nine expressions, the one-time surprise flash, gestures, amplitude lip-sync, and reduced-motion behaviour.
 >
 > Belief meter drains and changes colour red → amber → green; face and meter update 400ms after the student's turn, never instantly. Append to `progress/preethesh.md` after each commit. Commit as `[web] ...` with no AI co-author trailer.
 

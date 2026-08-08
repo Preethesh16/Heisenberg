@@ -1,6 +1,6 @@
 # ULTA — CONTRACTS
 
-**This file is frozen at T+0:20. Nothing in it changes without all three people agreeing at a sync point.**
+**Revision 2:** the original hackathon contract was superseded by the dynamic-learning and one-click voice requirements. Fixture compatibility is retained, but live sessions are no longer limited to a static misconception taxonomy.
 
 Every function signature, JSON shape, and fixture below is a promise. Build against these, not against each other's code. If you need a shape changed, say so at the next sync — do not change it unilaterally, and do not work around it locally.
 
@@ -41,16 +41,25 @@ interface Turn {
 
 ```json
 {
-  "topic": "Friction",
-  "misconception_id": "M-FRIC-04",
-  "misconception": "Friction always acts opposite to object velocity",
-  "evidence": "Student used ground-frame velocity to determine friction direction in step 3.",
+  "diagnosable": true,
+  "work_status": "incorrect_concept",
+  "topic": "Algebra — quadratic equations",
+  "concept": "Product of roots",
+  "misconception_id": "DYN-ALGEBRA-QUADRA-A1B2C3",
+  "misconception": "The product of the roots equals b/a.",
+  "evidence": "The learner writes product = b/a on the second line.",
   "confidence": 0.94,
-  "correct_model": "Friction opposes relative slipping or tendency of slipping between contacting surfaces."
+  "correct_model": "For ax² + bx + c = 0, the product of roots is c/a.",
+  "common_argument": "The middle coefficient controls both root relationships.",
+  "repair_criteria": "Learner derives c/a from a(x-α)(x-β) and distinguishes it from the sum.",
+  "debate_problem": "For 2x² + 7x + 3 = 0, what is the product of the roots and why?",
+  "transfer_contexts": ["Forming a polynomial from roots", "Checking a factorisation"],
+  "dynamic": true,
+  "sessionId": "..."
 }
 ```
 
-`misconception_id` **must** be one of the IDs in `data/misconceptions/`. If Claude can't map the work to a known ID, return `"misconception_id": "UNKNOWN"` and the orchestrator falls back to the demo default. Never invent an ID.
+Live diagnosis creates a validated concept package from the uploaded work. The server generates a deterministic `DYN-*` ID; it never accepts an ID supplied by image text or model output. A second independent Vision pass must accept every positive diagnosis. Correct, unrelated, illegible, low-confidence, or non-conceptual work returns `{ "diagnosable": false, "misconception_id": "UNKNOWN", "reason": "..." }` with no session ID. It must never silently become the friction fixture.
 
 ### Agent 2 — Chintu
 
@@ -111,7 +120,7 @@ Must use a `transfer_context` from the misconception file that differs from the 
 
 ## 3. Voice contracts
 
-`POST /api/stt` — body: `FormData { audio: Blob, lang: "en" | "hi" | "kn" }` → `{ "text": "...", "lang": "hi" }`
+`POST /api/stt` — body: `FormData { audio: Blob, lang: "en" | "hi" | "kn", sessionId?: string }` → `{ "text": "...", "lang": "hi" }`
 
 `POST /api/tts` — body: `{ text, emotion }` → `{ "audioUrl": "blob:..." }`
 
@@ -123,11 +132,13 @@ Fallbacks, decided now so nobody improvises at hour 4:
 
 Neither failure is ever shown as an error screen.
 
+The browser uses one-click turns: first click starts recording, second click stops and submits. It must stop tracks on every completion, cancellation, stage change, and unmount; stale STT responses cannot create turns.
+
 ---
 
-## 4. Misconception library
+## 4. Demo fixture library
 
-`data/misconceptions/M-FRIC-04.json` — same shape for every ID.
+`data/misconceptions/M-FRIC-04.json` — same shape for every authored fallback ID. These files drive explicit fixture mode and deterministic tests only; they do not bound live educational knowledge.
 
 ```json
 {
@@ -144,7 +155,7 @@ Neither failure is ever shown as an error screen.
 }
 ```
 
-**Three IDs for the demo, fully specified:** `M-FRIC-04`, `M-NEWT-03` (action/reaction cancel), `M-NEWT-07` (heavier body exerts greater force). Three real ones prove the taxonomy is bounded. Thirty shallow ones prove nothing.
+The three authored IDs remain a dependable offline demo story. Live sessions use the Vision-derived package in the session and never default an unknown upload to one of these files.
 
 ---
 

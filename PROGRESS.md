@@ -20,6 +20,15 @@
 
 The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.framer.website/): warm, approachable, rounded, spacious, and centred on one clear action at a time. For ULTA, that means a debate-first session screen where Chintu, the belief meter, captions, and stage rail remain dominant. The existing `Chintu.jsx` is the avatar reference; wire its emotion states, gestures, belief-threshold surprise flash, Maya lip-sync, and reduced-motion fallback without altering the component.
 
+### Post-hackathon senior re-audit — Codex
+
+This section supersedes stale implementation assumptions in the historical log below. The original three-misconception library remains only for deterministic fixture/demo mode; the live product now derives a validated concept package from the student's actual uploaded work and never silently substitutes M-FRIC-04.
+
+- **Deepthi / agents:** Diagnosis accepts any academic subject, rejects prompt injection inside the image, and runs a second independent Sonnet image audit before creating a session. Correct, blurry, unrelated, malformed, and unsupported uploads return `UNKNOWN` without a session. Chintu, Judge, and Verifier consume the validated dynamic concept package; all Claude agents share one Sonnet-only model configuration. Deterministic agent suite: 60 checks. Live regressions covered friction, algebra, chemistry, a correct solution, blur, unrelated UI, and an image-borne prompt injection. Expanded live Chintu adversarial suite: 9/9 held, while a complete explanation still made him yield.
+- **Jeswin / core:** Exact session IDs and legal stages are enforced; turns are deduplicated; arbitrary post-pass Chintu turns are rejected; Judge and provider failures fail closed; verification is idempotent; uploads and JSON bodies are bounded; API errors stay JSON; sessions expire after inactivity. Sarvam STT defaults to live-tested `saaras:v3`, Maya uses Arjun, and both voice providers retain quiet browser-safe fallbacks. The 21-check core suite covers state transitions, cross-session isolation, TTL cleanup, voice validation, providerless behavior, and dynamic fallback content.
+- **Preethesh / web:** The shipped default calls the real server. Upload failure is honest and retryable, with no bundled misconception substitution. Voice is click once to record and click again to send, with typed fallback, stale-operation guards, stream cleanup, and exactly one submitted turn. The UI and full-body animated Chintu were redesigned around the agreed warm tutor reference while retaining captions, lip sync, reduced motion, and responsive layouts. Six Playwright runs cover desktop and mobile entry, voice lifecycle, and the complete debate-to-transfer flow.
+- **Live end-to-end evidence:** A dynamic algebra upload completed Vision diagnosis → Chintu debate → Judge → generated transfer problem → defeat screen in the browser, with Maya audio returned for Chintu turns. A forced Judge network failure recovered in place without advancing the stage or locking the mic. Providerless and oversized-upload paths were also exercised.
+
 ## Component state
 
 | Component | Owner | Status | Notes |

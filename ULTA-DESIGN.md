@@ -109,7 +109,7 @@ The teaching screen is the product. Everything else is scaffolding.
 │  stubborn     │  You: "Relative motion..."   │
 │               │                              │
 │  BELIEF ▓▓▓▓░ │                              │
-│  72%          │  [ ⏺ HOLD TO TEACH ]  हिं ▾  │
+│  72%          │  [ ◉ TALK TO CHINTU ]  हिं ▾  │
 └───────────────┴──────────────────────────────┘
    ✓ Diagnosed → ● Teaching → ○ Judge → ○ Transfer
 ```
@@ -166,7 +166,7 @@ Claude is the mind, Maya is the voice, the avatar is the body. The UI should mak
 
 - **Language picker sits next to the mic**, not buried in settings, and is labelled by what the learner thinks in: English, Hinglish, ಕನ್ನಡ + English, தமிழ் + English.
 - **Show only the language paths that actually work.** Per section 14, don't render a picker option the demo can't honour.
-- **The mic is hold-to-talk, not toggle.** It gives a clear turn boundary, matches how people argue, and avoids the dead air that kills a live demo.
+- **The mic uses one-click turns.** First tap begins listening; the next tap ends and submits. The surface clearly distinguishes opening the mic, listening, transcribing, Chintu thinking, and Chintu speaking. It is turn-based—not an always-listening assistant—and releases the microphone on cancellation, stage change, or unmount.
 - **Transcription errors are not failures.** The Judge reasons over meaning, so a mangled transcript should never surface as an error state. Show the transcript quietly and let Claude interpret it.
 
 ---
