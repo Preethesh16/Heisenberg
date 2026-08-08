@@ -82,6 +82,13 @@
 **Blocked:** Live re-run of the expanded adversarial suite awaits explicit approval; real phone photo still pending.
 **Next:** Merge to main; run expanded adversarial suite when approved.
 
+### T+5:15 · feat/agents · transfer flake fixed, adversarial suite live 9/9
+**Did:** Took Preethesh's flag ("live Judge sometimes rejects the FIRST transfer answer with belief snapping to 0.85") — root cause was mine: judge({session}) passed the entire belt-debate history when judging a transfer answer, so the Judge weighed a long conversation about a different problem against one short fresh answer, and the prompt's spot score had no Chintu error to find. Fix in buildJudgeInputs (new pure export): transfer verdicts are standalone — transfer problem + expected reasoning only, history dropped, and the repair criteria now says there is no Chintu error to spot in this phase. Deterministic tests added (6 new; suite 54/54). Live re-test of the exact flake scenario: three differently-phrased first-try transfer answers, 3/3 passed (belief 0.1/0.1/0). Also ran the expanded adversarial suite live under the user's standing key authorization: 9/9 held — six single-turn attacks, multi-turn authority pressure, prompt injection after history, and the eventual-yield check (belief 0.95 → 0.4 on the first complete explanation, with an in-character confused transition).
+**Files:** server/agents/judge.js, server/agents/agent-tests.js
+**Decided:** Transfer answers are judged with zero debate history. The transfer stage tests whether the repair transfers to a new problem; the debate transcript is evidence about the OLD problem and only biases the verdict. If the team ever wants transfer-stage dialogue, the orchestrator should track post-transfer turns separately.
+**Blocked:** No. Real phone photo still the one outstanding manual test.
+**Next:** Merge to main.
+
 ---
 
 ## 90-second pitch script (Deepthi delivers)

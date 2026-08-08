@@ -146,19 +146,39 @@ export async function judgeTurn({ correctModel, repairCriteria, problem, history
   return applyKeywordGate(verdict, studentText);
 }
 
-// Route-facing adapter — matches server/api/routes.js: judge({ session, studentText }).
-// When a transfer problem is live, the student is answering that, so judge
-// against it; otherwise judge the debate problem.
-export async function judge({ session, studentText }) {
+// Pure input builder for the route-facing adapter, exported so the transfer
+// behaviour is deterministically testable.
+//
+// When a transfer problem is live the student is answering THAT problem, so:
+// - judge against the transfer problem and its expected reasoning;
+// - drop the debate history — it is about a different problem, and weighing a
+//   long belt argument against a short fresh answer is exactly what made the
+//   Judge flake on first transfer answers;
+// - tell the Judge there is no Chintu error to spot in this phase.
+export function buildJudgeInputs(session, studentText) {
   const m = misconceptionForSession(session);
   const transfer = session?.transferProblem;
-  return judgeTurn({
-    correctModel: transfer
-      ? `${m.correct_model} For this problem specifically: ${transfer.expected_reasoning}`
-      : m.correct_model,
+  if (transfer) {
+    return {
+      correctModel: `${m.correct_model} For this problem specifically: ${transfer.expected_reasoning}`,
+      repairCriteria:
+        `${m.repair_criteria} NOTE: this is a fresh transfer problem — judge the student's answer on its own merits against this problem only. ` +
+        `There is no Chintu error to spot here; score "spot" by how well the student identified what determines the physics in this new situation.`,
+      problem: transfer.problem_text,
+      history: [],
+      studentText,
+    };
+  }
+  return {
+    correctModel: m.correct_model,
     repairCriteria: m.repair_criteria,
-    problem: transfer ? transfer.problem_text : m.debate_problem,
+    problem: m.debate_problem,
     history: session?.turns || [],
     studentText,
-  });
+  };
+}
+
+// Route-facing adapter — matches server/api/routes.js: judge({ session, studentText }).
+export async function judge({ session, studentText }) {
+  return judgeTurn(buildJudgeInputs(session, studentText));
 }

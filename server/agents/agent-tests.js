@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { loadMisconceptions } from "./misconceptions.js";
 import { diagnose, detectImageMediaType, MIN_IMAGE_BYTES } from "./diagnose.js";
 import { normalizeChintuReply, buildChintuRequest } from "./chintu.js";
-import { applyKeywordGate, buildJudgeMessages, evidenceGrounded, judgeTurn } from "./judge.js";
+import { applyKeywordGate, buildJudgeMessages, buildJudgeInputs, evidenceGrounded, judgeTurn } from "./judge.js";
 import { verifyTransfer } from "./verify.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -140,6 +140,34 @@ const d4 = await diagnose({ imageBase64: big(Buffer.from([0x89, 0x50, 0x4e, 0x47
 check(d4.misconception_id === "UNKNOWN" && d4.evidence.includes("unavailable"), "valid PNG magic, no key → gates passed, degrades via fallback");
 const d5 = await diagnose({ imageBase64: 12345 });
 check(d5.misconception_id === "UNKNOWN", "non-string image input → UNKNOWN");
+
+// ---------- 7b. Transfer judging is standalone ----------
+const debateSession = {
+  diagnosis: { misconception_id: "M-FRIC-04" },
+  turns: [
+    { role: "chintu", text: "friction is left, obviously" },
+    { role: "student", text: "no, the belt slips under the block" },
+  ],
+  transferProblem: null,
+};
+const debateInputs = buildJudgeInputs(debateSession, "an answer");
+check(debateInputs.problem === byId["M-FRIC-04"].debate_problem, "debate judging targets debate_problem");
+check(debateInputs.history.length === 2, "debate judging keeps full history");
+
+const transferSession = {
+  ...debateSession,
+  transferProblem: {
+    problem_text: "Which way does friction act on the driven wheels?",
+    expected_reasoning: "Contact patch tends to slip backward, so friction acts forward.",
+    context_label: "Accelerating vehicle",
+    misconception_id: "M-FRIC-04",
+  },
+};
+const transferInputs = buildJudgeInputs(transferSession, "friction acts forward because the patch slips back");
+check(transferInputs.problem === transferSession.transferProblem.problem_text, "transfer judging targets the transfer problem");
+check(transferInputs.history.length === 0, "transfer judging drops debate history (flake fix)");
+check(transferInputs.correctModel.includes("Contact patch tends to slip backward"), "transfer judging carries expected_reasoning");
+check(transferInputs.repairCriteria.includes("no Chintu error to spot"), "transfer judging tells the judge there is no Chintu error");
 
 // ---------- 8. Judge fails closed without provider ----------
 const j = await judgeTurn({ correctModel: "c", repairCriteria: "r", problem: "p", studentText: "any words at all here to be safe" });
