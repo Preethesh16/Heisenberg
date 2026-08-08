@@ -1,0 +1,6 @@
+{
+  "problem_text": "A car accelerates forward. Which way does friction act on the driven wheels?",
+  "context_label": "Accelerating vehicle",
+  "expected_reasoning": "Contact patch tends to slip backward, so friction acts forward.",
+  "misconception_id": "M-FRIC-04"
+}

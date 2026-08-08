@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "belief_strength": 0.12,
+  "tone": "neutral",
+  "repair_evidence": "Student distinguished the block's velocity from relative slipping at the contact surface and used it to predict the friction direction.",
+  "missing": "",
+  "scores": { "solve": 86, "spot": 91, "explain": 88 }
+}
