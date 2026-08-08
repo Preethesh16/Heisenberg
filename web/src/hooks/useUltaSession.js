@@ -1,7 +1,5 @@
 import { useCallback, useReducer, useRef } from "react";
 import * as api from "../api/client";
-import fallbackDiagnosis from "../mocks/diagnosis.json";
-import fallbackVerify from "../mocks/verify.json";
 
 // One hook owns the whole Session (CONTRACTS.md §1) plus a small ui slice.
 // It also stands in for server/orchestrator.js until Jeswin's state machine
@@ -28,6 +26,8 @@ const initialState = {
     sttFallbackActive: false,
     handwritingUrl: null,
     pendingAudio: null, // { text, emotion } for the tts effect in SessionScreen
+    diagnosisIssue: "",
+    connectionIssue: "",
   },
 };
 
@@ -39,7 +39,12 @@ function reducer(state, action) {
         id: action.sessionId,
         stage: "diagnosing",
         startedAt: action.startedAt,
-        ui: { ...state.ui, handwritingUrl: action.handwritingUrl },
+        ui: { ...state.ui, handwritingUrl: action.handwritingUrl, diagnosisIssue: "", connectionIssue: "" },
+      };
+    case "DIAGNOSIS_REJECTED":
+      return {
+        ...initialState,
+        ui: { ...initialState.ui, diagnosisIssue: action.reason },
       };
     case "DIAGNOSIS_RECEIVED":
       // Chintu's opener is already in flight — hold the mic until it lands.
@@ -48,13 +53,13 @@ function reducer(state, action) {
         stage: "debate",
         id: action.sessionId ?? state.id,
         diagnosis: action.diagnosis,
-        ui: { ...state.ui, emotion: "thinking", isChintuThinking: true },
+        ui: { ...state.ui, emotion: "thinking", isChintuThinking: true, connectionIssue: "" },
       };
     case "STUDENT_TURN_SENT":
       return {
         ...state,
         turns: [...state.turns, { role: "student", text: action.text }],
-        ui: { ...state.ui, emotion: "listening", gesture: null, isChintuThinking: true },
+        ui: { ...state.ui, emotion: "listening", gesture: null, isChintuThinking: true, connectionIssue: "" },
       };
     case "CHINTU_APPLIED": {
       const { chintu, judge, lock } = action;
@@ -80,7 +85,13 @@ function reducer(state, action) {
         ...state,
         stage: "transfer",
         transferProblem: action.problem,
-        ui: { ...state.ui, emotion: "happy", gesture: null, isChintuThinking: false },
+        ui: { ...state.ui, emotion: "happy", gesture: null, isChintuThinking: false, connectionIssue: "" },
+      };
+    case "VERIFY_FAILED":
+      return {
+        ...state,
+        stage: "judging",
+        ui: { ...state.ui, isChintuThinking: false, connectionIssue: action.message },
       };
     case "TRANSFER_ANSWERED": {
       const { judge } = action;
@@ -105,7 +116,15 @@ function reducer(state, action) {
     case "TURN_FAILED":
       // Quiet recovery: the turn is in the transcript, the mic reopens,
       // the student simply speaks again. Never an error screen.
-      return { ...state, ui: { ...state.ui, gesture: null, isChintuThinking: false } };
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          gesture: null,
+          isChintuThinking: false,
+          connectionIssue: action.message || "That turn did not reach the session. Check the connection and try again.",
+        },
+      };
     case "STT_FALLBACK":
       return { ...state, ui: { ...state.ui, sttFallbackActive: true } };
     case "AUDIO_CONSUMED":
@@ -118,6 +137,7 @@ function reducer(state, action) {
 export default function useUltaSession() {
   const [session, dispatch] = useReducer(reducer, initialState);
   const idRef = useRef(null);
+  const turnInFlightRef = useRef(false);
 
   const startSession = useCallback(async ({ imageBase64, questionText, handwritingUrl }) => {
     // Local id is the mock-mode fallback; the server's diagnose response
@@ -130,8 +150,18 @@ export default function useUltaSession() {
     try {
       response = await api.diagnose({ imageBase64, questionText });
     } catch {
-      // Diagnosis unreachable → demo default, per the CLAUDE.md failure table.
-      response = fallbackDiagnosis;
+      dispatch({
+        type: "DIAGNOSIS_REJECTED",
+        reason: "Chintu could not reach the diagnosis service. Check the connection and try the photo again.",
+      });
+      return;
+    }
+    if (response?.diagnosable === false || response?.misconception_id === "UNKNOWN") {
+      dispatch({
+        type: "DIAGNOSIS_REJECTED",
+        reason: response?.reason || "No clear conceptual error was visible. Include the full question and a sharper view of the working.",
+      });
+      return;
     }
     const { sessionId: serverId, ...diagnosis } = response;
     if (serverId) idRef.current = serverId;
@@ -142,11 +172,13 @@ export default function useUltaSession() {
       const opener = await api.chintuTurn({ sessionId: idRef.current, studentText: "" });
       setTimeout(() => dispatch({ type: "CHINTU_APPLIED", chintu: opener, judge: null }), REACTION_LAG_MS);
     } catch {
-      dispatch({ type: "TURN_FAILED" }); // mic opens; the student starts instead
+      dispatch({ type: "TURN_FAILED", message: "Chintu could not open the conversation. Check the connection and try again." });
     }
   }, []);
 
   const sendStudentTurn = useCallback(async (text) => {
+    if (turnInFlightRef.current) return;
+    turnInFlightRef.current = true;
     const sessionId = idRef.current;
     dispatch({ type: "STUDENT_TURN_SENT", text });
     let chintu, judge;
@@ -159,8 +191,10 @@ export default function useUltaSession() {
       chintu = await api.chintuTurn({ sessionId, studentText: text });
     } catch {
       dispatch({ type: "TURN_FAILED" });
+      turnInFlightRef.current = false;
       return;
     }
+    turnInFlightRef.current = false;
     // The reply exists in memory now; the visible reaction waits. Only the
     // Judge advances the stage — should_yield is presentation, not verdict.
     setTimeout(() => {
@@ -172,7 +206,8 @@ export default function useUltaSession() {
           try {
             problem = await api.verify({ sessionId });
           } catch {
-            problem = fallbackVerify; // transfer still happens, from the bundled fixture
+            dispatch({ type: "VERIFY_FAILED", message: "The transfer check could not load. Retry when the connection is back." });
+            return;
           }
           dispatch({ type: "VERIFY_RECEIVED", problem });
         }, YIELD_HOLD_MS);
@@ -181,6 +216,8 @@ export default function useUltaSession() {
   }, []);
 
   const sendTransferAnswer = useCallback(async (text) => {
+    if (turnInFlightRef.current) return;
+    turnInFlightRef.current = true;
     const sessionId = idRef.current;
     dispatch({ type: "STUDENT_TURN_SENT", text });
     let judge;
@@ -188,8 +225,10 @@ export default function useUltaSession() {
       judge = await api.judgeTurn({ sessionId, studentText: text });
     } catch {
       dispatch({ type: "TURN_FAILED" });
+      turnInFlightRef.current = false;
       return;
     }
+    turnInFlightRef.current = false;
     // Transfer is verified by the Judge, never by the act of answering.
     setTimeout(() => {
       if (judge.passed) dispatch({ type: "TRANSFER_ANSWERED", judge });
@@ -197,8 +236,22 @@ export default function useUltaSession() {
     }, REACTION_LAG_MS);
   }, []);
 
+  const retryVerify = useCallback(async () => {
+    if (turnInFlightRef.current || !idRef.current) return;
+    turnInFlightRef.current = true;
+    dispatch({ type: "JUDGING" });
+    try {
+      const problem = await api.verify({ sessionId: idRef.current });
+      dispatch({ type: "VERIFY_RECEIVED", problem });
+    } catch {
+      dispatch({ type: "VERIFY_FAILED", message: "The transfer check still cannot load. Check the connection and retry." });
+    } finally {
+      turnInFlightRef.current = false;
+    }
+  }, []);
+
   const activateSttFallback = useCallback(() => dispatch({ type: "STT_FALLBACK" }), []);
   const consumeAudio = useCallback(() => dispatch({ type: "AUDIO_CONSUMED" }), []);
 
-  return { session, startSession, sendStudentTurn, sendTransferAnswer, activateSttFallback, consumeAudio };
+  return { session, startSession, sendStudentTurn, sendTransferAnswer, retryVerify, activateSttFallback, consumeAudio };
 }

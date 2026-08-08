@@ -6,12 +6,12 @@ export const copy = {
   tagline: "Don't ask AI. Teach it.",
 
   upload: {
-    heading: "Show us where it went wrong",
-    sub: "Upload a photo of your handwritten solution. Chintu will pick up the same idea and run with it.",
+    heading: "What were you working on?",
+    sub: "Upload a clear page from maths, science, or another academic subject. Include the question for the sharpest diagnosis.",
     questionLabel: "Question text (optional)",
     questionPlaceholder: "Type the question you were solving",
-    cta: "Start the session",
-    diagnosing: "Reading your work…",
+    cta: "Let Chintu inspect it",
+    diagnosing: "Reading every step…",
   },
 
   // "You are the teacher" stays up for the entire session (ULTA-DESIGN §36);
@@ -36,8 +36,13 @@ export const copy = {
   },
 
   mic: {
-    hold: "Hold to teach",
-    release: "Listening… release to send",
+    idle: "Talk to Chintu",
+    requesting: "Opening microphone…",
+    recording: "Listening — tap to send",
+    transcribing: "Turning speech into text…",
+    idleHint: "Tap once to speak. Tap again when your explanation is complete.",
+    recordingHint: "Chintu is listening. Your turn sends when you tap again.",
+    processingHint: "Keeping your place while the transcript arrives.",
     textPlaceholder: "Type your argument instead",
     textSend: "Send",
   },

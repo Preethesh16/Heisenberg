@@ -27,7 +27,8 @@ export default function DefeatScreen({ session }) {
   return (
     <main className="defeat-screen">
       <h1 className="defeat-screen__headline">
-        <span className="defeat-screen__id">{diagnosis.misconception_id}</span> DEFEATED
+        <span className="defeat-screen__id">{diagnosis.misconception_id}</span>
+        <span>Belief defeated</span>
       </h1>
 
       <div className="defeat-screen__beliefs">
@@ -68,7 +69,7 @@ export default function DefeatScreen({ session }) {
         </div>
       </div>
 
-      <TeacherDashboardPreview />
+      {!diagnosis.dynamic && <TeacherDashboardPreview />}
 
       <button type="button" className="defeat-screen__again" onClick={() => window.location.reload()}>
         {copy.defeat.again}

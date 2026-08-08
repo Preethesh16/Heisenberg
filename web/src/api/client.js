@@ -58,6 +58,7 @@ export async function speechToText({ audioBlob, lang, sessionId }) {
   const form = new FormData();
   form.append("audio", audioBlob);
   form.append("lang", lang);
+  if (sessionId) form.append("sessionId", sessionId);
   const res = await fetch("/api/stt", { method: "POST", body: form });
   if (!res.ok) throw new Error(`stt ${res.status}`);
   return res.json();

@@ -9,7 +9,7 @@ import HandwritingThumbnail from "./HandwritingThumbnail";
 import { copy } from "../utils/copy";
 import { textToSpeech } from "../api/client";
 
-export default function SessionScreen({ session, sendStudentTurn, sendTransferAnswer, activateSttFallback, consumeAudio }) {
+export default function SessionScreen({ session, sendStudentTurn, sendTransferAnswer, retryVerify, activateSttFallback, consumeAudio }) {
   const { stage, diagnosis, turns, beliefStrength, transferProblem, startedAt, ui } = session;
   const [lang, setLang] = useState("en");
   const [speaking, setSpeaking] = useState(false);
@@ -51,6 +51,8 @@ export default function SessionScreen({ session, sendStudentTurn, sendTransferAn
         <MisconceptionCard
           misconceptionId={diagnosis.misconception_id}
           misconception={diagnosis.misconception}
+          topic={diagnosis.topic}
+          concept={diagnosis.concept}
         />
       )}
 
@@ -60,6 +62,13 @@ export default function SessionScreen({ session, sendStudentTurn, sendTransferAn
           <p className="transfer-card__intro">{copy.transferIntro}</p>
           <p className="transfer-card__problem">{transferProblem.problem_text}</p>
         </section>
+      )}
+
+      {ui.connectionIssue && (
+        <div className="connection-banner" role="status">
+          <span>{ui.connectionIssue}</span>
+          {stage === "judging" && <button type="button" onClick={retryVerify}>Retry transfer</button>}
+        </div>
       )}
 
       <div className="session-screen__main">

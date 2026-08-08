@@ -1,5 +1,11 @@
 # Progress — Preethesh · feat/web
 
+### 2026-08-08 · post-hackathon web audit
+**Did:** Changed the shipped default to the real backend, removed bundled-friction recovery from live diagnosis and verification, added retryable connection states, and serialized in-flight turns. Replaced hold-to-talk with click once to record / click again to send, including typed fallback, stale-operation guards, full media-track cleanup, and one-turn-only submission. Rebuilt Chintu as a polished full-body animated mascot and redesigned the responsive session around the agreed warm tutor reference. Corrected the React StrictMode microphone lifecycle discovered during browser testing.
+**Tests:** Production build green; six Playwright runs pass on desktop and mobile for visual hierarchy, one-click media lifecycle, typed fallback, and the full debate → transfer → defeat flow. Live dynamic algebra completed end to end in the browser with Maya audio; forced Judge failure recovered without stage drift or a locked mic.
+**Decided:** Mocks remain explicit test tooling only; a live upload failure is shown honestly and never swapped for fixture content.
+**Blocked:** No.
+
 ### T+0:25 · feat/web · 2ff25d5
 **Did:** Vite + React app scaffolded in web/ with plain-CSS shell, /api dev proxy to :3000.
 **Files:** web/package.json, web/vite.config.js, web/index.html, web/src/main.jsx, web/src/styles.css, web/.env.local

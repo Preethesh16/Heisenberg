@@ -5,11 +5,11 @@ import DefeatScreen from "./components/DefeatScreen";
 
 // No router. The Stage enum is the whole navigation model.
 export default function App() {
-  const { session, startSession, sendStudentTurn, sendTransferAnswer, activateSttFallback, consumeAudio } =
+  const { session, startSession, sendStudentTurn, sendTransferAnswer, retryVerify, activateSttFallback, consumeAudio } =
     useUltaSession();
 
   if (session.stage === "upload" || session.stage === "diagnosing") {
-    return <UploadScreen stage={session.stage} onStart={startSession} />;
+    return <UploadScreen stage={session.stage} issue={session.ui.diagnosisIssue} onStart={startSession} />;
   }
   if (session.stage === "done") {
     return <DefeatScreen session={session} />;
@@ -19,6 +19,7 @@ export default function App() {
       session={session}
       sendStudentTurn={sendStudentTurn}
       sendTransferAnswer={sendTransferAnswer}
+      retryVerify={retryVerify}
       activateSttFallback={activateSttFallback}
       consumeAudio={consumeAudio}
     />

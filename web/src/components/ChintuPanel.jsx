@@ -7,15 +7,20 @@ import BeliefMeter from "./BeliefMeter";
 export default function ChintuPanel({ emotion, gesture, beliefStrength, speaking, audioRef }) {
   return (
     <aside className="chintu-panel">
+      <div className="chintu-panel__identity">
+        <span className="chintu-panel__online" aria-hidden="true" />
+        <span>Chintu</span>
+        <small>AI classmate</small>
+      </div>
       <Chintu
         emotion={emotion}
         beliefStrength={beliefStrength}
         gesture={gesture}
         speaking={speaking}
         audioRef={audioRef}
-        size={190}
+        size={220}
       />
-      <div className="chintu-panel__emotion">{emotion}</div>
+      <div className="chintu-panel__emotion"><span aria-hidden="true">✦</span> {emotion}</div>
       <BeliefMeter value={beliefStrength} />
     </aside>
   );

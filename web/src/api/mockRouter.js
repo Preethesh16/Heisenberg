@@ -35,7 +35,7 @@ export function mockJudgeTurn(sessionId) {
   return i < judgeFails.length ? judgeFails[i] : judgePass;
 }
 
-// Canned student lines so a hold-to-talk demo works with no real STT behind it.
+// Canned student lines so a one-click voice demo works with no real STT behind it.
 const studentLines = [
   "But the block is not sliding on the ground, it is sitting on the belt.",
   "Friction does not care about the ground. It acts between the two surfaces that touch.",

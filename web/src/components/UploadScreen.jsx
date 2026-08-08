@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { copy } from "../utils/copy";
+import Chintu from "./Chintu";
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -27,12 +28,17 @@ async function toJpeg(file, maxDim = 1600) {
 }
 
 // The entry flow — one focused action: hand over the page.
-export default function UploadScreen({ stage, onStart }) {
+export default function UploadScreen({ stage, issue, onStart }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [questionText, setQuestionText] = useState("");
   const inputRef = useRef(null);
+  const previewRef = useRef(null);
   const diagnosing = stage === "diagnosing";
+
+  useEffect(() => () => {
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+  }, []);
 
   async function pick(f) {
     if (!f) return;
@@ -40,24 +46,41 @@ export default function UploadScreen({ stage, onStart }) {
     setFile(jpeg);
     setPreviewUrl((old) => {
       if (old) URL.revokeObjectURL(old);
-      return URL.createObjectURL(jpeg);
+      const next = URL.createObjectURL(jpeg);
+      previewRef.current = next;
+      return next;
     });
   }
 
   async function start() {
     if (!file || diagnosing) return;
     const imageBase64 = await fileToBase64(file);
-    onStart({ imageBase64, questionText: questionText || undefined, handwritingUrl: previewUrl });
+    const handwritingUrl = `data:${file.type || "image/jpeg"};base64,${imageBase64}`;
+    onStart({ imageBase64, questionText: questionText || undefined, handwritingUrl });
   }
 
   return (
     <main className="upload-screen">
-      <h1 className="upload-screen__logo">{copy.appName}</h1>
-      <p className="upload-screen__tagline">{copy.tagline}</p>
+      <div className="ambient-orb ambient-orb--one" />
+      <div className="ambient-orb ambient-orb--two" />
+
+      <section className="upload-screen__intro">
+        <span className="upload-screen__eyebrow">Teach-back learning, powered by Vision</span>
+        <h1 className="upload-screen__logo">{copy.appName}</h1>
+        <p className="upload-screen__tagline">{copy.tagline}</p>
+        <p className="upload-screen__promise">Show Chintu your working. He picks up the idea behind the mistake, then you teach him out of it.</p>
+        <div className="upload-screen__chips" aria-label="How it works">
+          <span>Scan any subject</span><span>Talk naturally</span><span>Prove it transfers</span>
+        </div>
+        <div className="upload-screen__mascot"><Chintu emotion="thinking" beliefStrength={0.86} size={210} /></div>
+      </section>
 
       <section className="upload-screen__card">
+        <span className="upload-screen__step">01 · Bring your work</span>
         <h2>{copy.upload.heading}</h2>
         <p className="upload-screen__sub">{copy.upload.sub}</p>
+
+        {issue && <p className="upload-screen__issue" role="status">{issue}</p>}
 
         <button
           type="button"
