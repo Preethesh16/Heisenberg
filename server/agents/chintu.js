@@ -2,15 +2,11 @@
 //
 // THE RULE THE PRODUCT RESTS ON: Chintu's payload is built field by field from
 // exactly four inputs — misconception, common_argument, problem, history.
-// He never receives correct_model, repair_criteria, or Judge output. Do not
-// spread the diagnosis or misconception object into this file's prompt path.
-"use strict";
-
-const fs = require("fs");
-const path = require("path");
-const { callClaude, parseJson } = require("./claude");
-
-const PROMPT_PATH = path.join(__dirname, "..", "..", "prompts", "chintu.md");
+// He never receives correct_model, repair_criteria, or Judge output. The
+// session object the route hands us CONTAINS correct_model (inside diagnosis);
+// the adapter below extracts only the allowed fields and nothing else.
+import { callClaude, parseJson } from "./claude.js";
+import { misconceptionForSession, loadPrompt } from "./misconceptions.js";
 
 const EMOTIONS = new Set([
   "idle", "listening", "thinking", "confident", "stubborn",
@@ -20,7 +16,7 @@ const GESTURES = new Set(["nod", "point_board"]);
 
 // The only fields Chintu is allowed to see. Exported so the isolation test
 // (and anyone reviewing) can assert the boundary in one place.
-function buildChintuPayload({ misconception, commonArgument, problem }) {
+export function buildChintuPayload({ misconception, commonArgument, problem }) {
   return {
     misconception: String(misconception),
     common_argument: String(commonArgument),
@@ -28,23 +24,27 @@ function buildChintuPayload({ misconception, commonArgument, problem }) {
   };
 }
 
-function buildSystemPrompt(payload) {
-  const template = fs.readFileSync(PROMPT_PATH, "utf8");
-  const promptBody = template.split("---")[1] || template;
-  return promptBody
+export function buildSystemPrompt(payload) {
+  return loadPrompt("chintu")
     .replace("{{MISCONCEPTION}}", payload.misconception)
     .replace("{{COMMON_ARGUMENT}}", payload.common_argument)
-    .replace("{{PROBLEM}}", payload.problem)
-    .trim();
+    .replace("{{PROBLEM}}", payload.problem);
 }
 
 // history: Turn[] from the session — [{ role: "chintu" | "student", text }]
 function toMessages(history, studentText) {
-  const messages = history.map((t) => ({
-    role: t.role === "chintu" ? "assistant" : "user",
-    content: t.text,
-  }));
-  messages.push({ role: "user", content: studentText });
+  const messages = history
+    .filter((t) => t.text)
+    .map((t) => ({
+      role: t.role === "chintu" ? "assistant" : "user",
+      content: t.text,
+    }));
+  // The route may have already appended this student turn to session.turns;
+  // don't send it twice.
+  const last = messages[messages.length - 1];
+  if (!last || last.role !== "user" || last.content !== studentText) {
+    messages.push({ role: "user", content: studentText });
+  }
   return messages;
 }
 
@@ -56,18 +56,18 @@ const FALLBACK = {
   should_yield: false,
 };
 
-async function chintuTurn({ misconception, commonArgument, problem, history = [], studentText }) {
+export async function chintuTurn({ misconception, commonArgument, problem, history = [], studentText }) {
   const payload = buildChintuPayload({ misconception, commonArgument, problem });
 
   let raw;
   try {
     const text = await callClaude({
       system: buildSystemPrompt(payload),
-      messages: toMessages(history, studentText),
+      messages: toMessages(history, studentText || "(the student is waiting for your opening take on the problem)"),
       maxTokens: 400,
     });
     raw = parseJson(text);
-  } catch (err) {
+  } catch {
     return { ...FALLBACK };
   }
 
@@ -84,4 +84,16 @@ async function chintuTurn({ misconception, commonArgument, problem, history = []
   };
 }
 
-module.exports = { chintuTurn, buildChintuPayload, buildSystemPrompt };
+// Route-facing adapter — matches server/api/routes.js: chintu({ session, studentText }).
+// This is the isolation boundary: from the whole session, exactly four things
+// pass through. Never add session.diagnosis.correct_model or judge output here.
+export async function chintu({ session, studentText }) {
+  const m = misconceptionForSession(session);
+  return chintuTurn({
+    misconception: session?.diagnosis?.misconception || m.false_belief,
+    commonArgument: m.common_argument,
+    problem: m.debate_problem,
+    history: session?.turns || [],
+    studentText,
+  });
+}

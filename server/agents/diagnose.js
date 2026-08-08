@@ -2,36 +2,19 @@
 // misconception_id is validated against data/misconceptions/; anything the
 // model invents, and any confidence below 0.6, degrades to UNKNOWN so the
 // orchestrator can fall back to the demo default instead of guessing.
-"use strict";
+import { callClaude, parseJson } from "./claude.js";
+import { loadMisconceptions, loadPrompt } from "./misconceptions.js";
 
-const fs = require("fs");
-const path = require("path");
-const { callClaude, parseJson } = require("./claude");
-
-const MISCONCEPTIONS_DIR = path.join(__dirname, "..", "..", "data", "misconceptions");
-const PROMPT_PATH = path.join(__dirname, "..", "..", "prompts", "diagnose.md");
-const MIN_CONFIDENCE = 0.6;
-
-function loadMisconceptions() {
-  const byId = {};
-  for (const file of fs.readdirSync(MISCONCEPTIONS_DIR)) {
-    if (!file.endsWith(".json")) continue;
-    const m = JSON.parse(fs.readFileSync(path.join(MISCONCEPTIONS_DIR, file), "utf8"));
-    byId[m.id] = m;
-  }
-  return byId;
-}
+export const MIN_CONFIDENCE = 0.6;
+export { loadMisconceptions };
 
 function buildPrompt(byId, questionText) {
-  const template = fs.readFileSync(PROMPT_PATH, "utf8");
-  const promptBody = template.split("---")[1] || template;
   const list = Object.values(byId)
     .map((m) => `- ${m.id} (${m.topic}): ${m.false_belief} Observable as: ${m.observable_evidence}`)
     .join("\n");
-  return promptBody
+  return loadPrompt("diagnose")
     .replace("{{MISCONCEPTION_LIST}}", list)
-    .replace("{{QUESTION_TEXT}}", questionText || "(not provided)")
-    .trim();
+    .replace("{{QUESTION_TEXT}}", questionText || "(not provided)");
 }
 
 const UNKNOWN = {
@@ -43,7 +26,7 @@ const UNKNOWN = {
   correct_model: "",
 };
 
-async function diagnose({ imageBase64, questionText }) {
+export async function diagnose({ imageBase64, questionText } = {}) {
   const byId = loadMisconceptions();
 
   let raw;
@@ -85,5 +68,3 @@ async function diagnose({ imageBase64, questionText }) {
     correct_model: known.correct_model,
   };
 }
-
-module.exports = { diagnose, loadMisconceptions, MIN_CONFIDENCE };
