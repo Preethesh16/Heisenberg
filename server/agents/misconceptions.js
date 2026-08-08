@@ -19,12 +19,48 @@ export function loadMisconceptions() {
   return byId;
 }
 
-// Resolve the misconception behind a session's diagnosis; unknown or missing
-// IDs fall back to the demo default rather than erroring (CLAUDE.md failure table).
+function dynamicFromDiagnosis(diagnosis) {
+  if (!diagnosis?.dynamic || diagnosis?.diagnosable !== true) return null;
+  const transferContexts = Array.isArray(diagnosis.transfer_contexts)
+    ? diagnosis.transfer_contexts.filter((v) => typeof v === "string" && v.trim())
+    : [];
+  const required = [
+    diagnosis.misconception_id,
+    diagnosis.topic,
+    diagnosis.concept,
+    diagnosis.misconception,
+    diagnosis.evidence,
+    diagnosis.common_argument,
+    diagnosis.repair_criteria,
+    diagnosis.debate_problem,
+    diagnosis.correct_model,
+  ];
+  if (required.some((v) => typeof v !== "string" || !v.trim()) || transferContexts.length < 2) return null;
+  return {
+    id: diagnosis.misconception_id,
+    topic: diagnosis.topic,
+    concept: diagnosis.concept,
+    false_belief: diagnosis.misconception,
+    observable_evidence: diagnosis.evidence,
+    common_argument: diagnosis.common_argument,
+    repair_criteria: diagnosis.repair_criteria,
+    debate_problem: diagnosis.debate_problem,
+    transfer_contexts: transferContexts,
+    correct_model: diagnosis.correct_model,
+    dynamic: true,
+  };
+}
+
+// Resolve the concept package behind a session. Fixture sessions still use the
+// authored three-item library; live sessions carry a validated package created
+// from the uploaded work. Unknown live sessions never become friction.
 export function misconceptionForSession(session) {
+  const dynamic = dynamicFromDiagnosis(session?.diagnosis);
+  if (dynamic) return dynamic;
   const byId = loadMisconceptions();
   const id = session?.diagnosis?.misconception_id;
-  return byId[id] || byId[DEMO_DEFAULT_ID];
+  if (byId[id]) return byId[id];
+  throw new Error("session has no usable diagnosis");
 }
 
 export function loadPrompt(name) {

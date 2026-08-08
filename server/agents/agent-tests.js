@@ -7,8 +7,8 @@ delete process.env.ANTHROPIC_API_KEY;
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadMisconceptions } from "./misconceptions.js";
-import { diagnose, detectImageMediaType, MIN_IMAGE_BYTES } from "./diagnose.js";
+import { loadMisconceptions, misconceptionForSession } from "./misconceptions.js";
+import { diagnose, detectImageMediaType, MIN_IMAGE_BYTES, normalizeDiagnosis } from "./diagnose.js";
 import { normalizeChintuReply, buildChintuRequest } from "./chintu.js";
 import { applyKeywordGate, buildJudgeMessages, buildJudgeInputs, evidenceGrounded, judgeTurn } from "./judge.js";
 import { verifyTransfer } from "./verify.js";
@@ -133,13 +133,40 @@ const big = (buf) => Buffer.concat([buf, Buffer.alloc(MIN_IMAGE_BYTES + 5000)]).
 const d1 = await diagnose({});
 check(d1.misconception_id === "UNKNOWN", "missing image → UNKNOWN");
 const d2 = await diagnose({ imageBase64: jpeg });
-check(d2.misconception_id === "UNKNOWN" && d2.evidence.includes("too small"), "tiny image → UNKNOWN before any call");
+check(d2.misconception_id === "UNKNOWN" && d2.reason.includes("too small"), "tiny image → UNKNOWN before any call");
 const d3 = await diagnose({ imageBase64: big(Buffer.from("A".repeat(24))) });
-check(d3.misconception_id === "UNKNOWN" && d3.evidence.includes("unsupported"), "large but non-image bytes → UNKNOWN (unsupported format)");
+check(d3.misconception_id === "UNKNOWN" && d3.reason.includes("JPEG"), "large but non-image bytes → UNKNOWN (unsupported format)");
 const d4 = await diagnose({ imageBase64: big(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4, 5, 6, 7, 8])) });
-check(d4.misconception_id === "UNKNOWN" && d4.evidence.includes("unavailable"), "valid PNG magic, no key → gates passed, degrades via fallback");
+check(d4.misconception_id === "UNKNOWN" && d4.reason.includes("unavailable"), "valid PNG magic, no key → gates passed, degrades truthfully");
 const d5 = await diagnose({ imageBase64: 12345 });
 check(d5.misconception_id === "UNKNOWN", "non-string image input → UNKNOWN");
+
+// ---------- 7a. Dynamic diagnosis package ----------
+const dynamicRaw = {
+  work_status: "incorrect_concept",
+  diagnosable: true,
+  reason: "A visible conceptual reversal causes the conclusion.",
+  topic: "Algebra — quadratic equations",
+  concept: "Relationship between roots and coefficients",
+  misconception: "The product of the roots equals b over a.",
+  evidence: "The learner writes alpha beta = b/a on the second line.",
+  confidence: 0.93,
+  correct_model: "For ax² + bx + c = 0, the product of the roots is c/a.",
+  common_argument: "The middle coefficient controls both the sum and product of the roots.",
+  repair_criteria: "The learner derives or applies the c/a product and distinguishes it from the -b/a sum.",
+  debate_problem: "For 2x² - 7x + 3 = 0, what is the product of the roots and why?",
+  transfer_contexts: ["Forming a polynomial from roots", "Checking factorised quadratics"],
+};
+const dynamic = normalizeDiagnosis(dynamicRaw);
+check(dynamic.diagnosable === true && dynamic.misconception_id.startsWith("DYN-"), "valid Vision result becomes a dynamic concept package");
+check(dynamic.misconception_id === normalizeDiagnosis(dynamicRaw).misconception_id, "dynamic misconception ID is deterministic");
+const dynamicResolved = misconceptionForSession({ diagnosis: dynamic });
+check(dynamicResolved.correct_model === dynamicRaw.correct_model, "dynamic session resolves its Vision-derived correct model");
+check(dynamicResolved.debate_problem === dynamicRaw.debate_problem, "dynamic session resolves its Vision-derived debate problem");
+const incomplete = normalizeDiagnosis({ ...dynamicRaw, transfer_contexts: [] });
+check(incomplete.diagnosable === false && incomplete.misconception_id === "UNKNOWN", "incomplete dynamic package fails closed");
+const lowConfidence = normalizeDiagnosis({ ...dynamicRaw, confidence: 0.4 });
+check(lowConfidence.diagnosable === false, "low-confidence dynamic diagnosis remains UNKNOWN");
 
 // ---------- 7b. Transfer judging is standalone ----------
 const debateSession = {

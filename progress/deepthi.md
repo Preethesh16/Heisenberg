@@ -1,5 +1,11 @@
 # Progress — Deepthi · feat/agents
 
+### 2026-08-08 · post-hackathon dynamic-learning audit
+**Did:** Replaced the live three-ID classifier with subject-agnostic Vision diagnosis. A positive diagnosis now carries its own topic, concept, misconception, evidence, correct model, common argument, repair criteria, debate problem, and transfer contexts. A second independent Sonnet image audit must confirm that the candidate is both wrong and grounded in visible work before a session is created. Correct, blurry, unrelated, malformed, unsupported, and image-prompt-injection cases fail closed to `UNKNOWN` with no session. Chintu, Judge, and Verifier resolve the validated dynamic package instead of silently falling back to friction.
+**Tests:** 60/60 deterministic agent checks; isolation suite green; live friction/algebra/chemistry/correct/blur/unrelated/injection regressions; expanded live Chintu adversarial suite 9/9 with eventual yield preserved.
+**Decided:** Every live agent uses the one shared Sonnet model configuration. The authored misconception JSON files remain deterministic fixture data, not the boundary of what ULTA can teach.
+**Blocked:** No.
+
 ### T+0:45 · feat/agents · d7eebeb
 **Did:** M-FRIC-04.json written in full against CONTRACTS §4. Diagnosis agent returns the exact CONTRACTS §2 shape; misconception_id validated against data/misconceptions/, confidence < 0.6 or unknown ID degrades to UNKNOWN.
 **Files:** data/misconceptions/M-FRIC-04.json, prompts/diagnose.md, server/agents/claude.js, server/agents/diagnose.js

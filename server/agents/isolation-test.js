@@ -37,12 +37,18 @@ const session = {
   stage: "debate",
   diagnosis: {
     topic: misconception.topic,
-    misconception_id: misconception.id,
+    concept: misconception.concept,
+    misconception_id: "DYN-FRICTION-TEST",
     misconception: misconception.false_belief,
     evidence: "used ground-frame velocity in step 3",
     confidence: 0.94,
     correct_model: misconception.correct_model,
+    common_argument: misconception.common_argument,
     repair_criteria: misconception.repair_criteria,
+    debate_problem: misconception.debate_problem,
+    transfer_contexts: misconception.transfer_contexts,
+    diagnosable: true,
+    dynamic: true,
   },
   turns: [
     {
