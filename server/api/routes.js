@@ -142,7 +142,10 @@ router.post("/chintu", async (req, res) => {
   if (!session) return;
   const { studentText } = req.body ?? {};
   if (studentText !== undefined && typeof studentText !== "string") return fail(res, 400, "invalid_request");
-  if (session.stage !== "debate") return fail(res, 409, "invalid_stage");
+  // Debate turns, plus the yield line: the frontend sequences judge-first, so
+  // Chintu's reaction to a passing verdict arrives while the session sits in
+  // "judging" (before /verify installs the transfer problem).
+  if (session.stage !== "debate" && session.stage !== "judging") return fail(res, 409, "invalid_stage");
   // Empty text is legal only for Chintu's opening turn.
   if (!studentText && session.turns.some((t) => t.role === "student")) return fail(res, 400, "invalid_request");
 
