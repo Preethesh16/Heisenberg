@@ -1,23 +1,50 @@
-// Maya TTS (Maya1). The voice — decides how Chintu sounds, never what he says
-// (CLAUDE.md). Endpoint and field names follow Maya's public docs; if a request
-// 4xxs once the venue key arrives, fix them here — no other file changes.
+// Maya TTS (Maya 2). The voice — decides how Chintu sounds, never what he says
+// (CLAUDE.md). Spec: docs.mayaresearch.ai — POST /v1/tts, Bearer auth, response
+// is headerless raw PCM (16-bit LE, mono, 24 kHz). Browsers can't play bare
+// PCM, so we wrap it in a WAV header and return a data URL; same-origin data
+// URLs also keep the lip-sync analyser working (ULTA-DESIGN §39).
 
-const TTS_URL = process.env.MAYA_TTS_URL || "https://v3.mayaresearch.ai/v1/tts/generate";
+const TTS_URL = process.env.MAYA_TTS_URL || "https://tts.mayaresearch.ai/v1/tts";
 
-// One string = one voice. Reusing it verbatim every call is what keeps Chintu
-// sounding like the same person. Do not tweak mid-demo.
-const CHINTU_VOICE =
-  "Young Indian male student, late teens, Indian English accent, energetic, slightly nasal, casual conversational tone";
+// Exactly two voices exist: "Ananya" and "Arjun", case-sensitive — the model
+// interpolates unknown names into garbage rather than erroring.
+const VOICE = process.env.MAYA_VOICE || "Arjun";
 
-// Agent 2 emotion → Maya inline emotion tag. Speaking emotions only; the rest
-// read fine untagged.
+// "Maya 2 Native Emotional" honours inline [tag]s. Language is deliberately
+// omitted from requests: auto-detect is the documented path for code-mixed
+// Hinglish, which is exactly how Chintu talks.
+const MODEL = process.env.MAYA_MODEL || "Maya 2 Native Emotional";
+
+// Agent 2 emotion → Maya emotion tag (only tags Maya documents; the rest read
+// fine untagged). convinced maps to [sighs] on purpose — the yield line is a
+// softer register (ULTA-DESIGN §37), not a celebration.
 const TAG = {
-  stubborn: "<angry>",
-  confused: "<sigh>",
-  surprised: "<gasp>",
-  happy: "<laugh>",
-  convinced: "<laugh>",
+  stubborn: "[frustrated]",
+  confused: "[curious]",
+  surprised: "[excited]",
+  happy: "[laughs]",
+  convinced: "[sighs]",
 };
+
+const SAMPLE_RATE = 24000;
+
+function pcmToWavDataUrl(pcm) {
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + pcm.length, 4);
+  header.write("WAVE", 8);
+  header.write("fmt ", 12);
+  header.writeUInt32LE(16, 16); // fmt chunk size
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(1, 22); // mono
+  header.writeUInt32LE(SAMPLE_RATE, 24);
+  header.writeUInt32LE(SAMPLE_RATE * 2, 28); // byte rate
+  header.writeUInt16LE(2, 32); // block align
+  header.writeUInt16LE(16, 34); // bits per sample
+  header.write("data", 36);
+  header.writeUInt32LE(pcm.length, 40);
+  return `data:audio/wav;base64,${Buffer.concat([header, pcm]).toString("base64")}`;
+}
 
 export async function speak(text, emotion) {
   const key = process.env.MAYA_API_KEY;
@@ -28,31 +55,15 @@ export async function speak(text, emotion) {
 
   const res = await fetch(TTS_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-API-Key": key },
-    body: JSON.stringify({
-      text: tagged,
-      voice_description: CHINTU_VOICE,
-      output_format: "mp3",
-    }),
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ text: tagged, voice: VOICE, model: MODEL }),
   });
   if (!res.ok) throw new Error(`maya ${res.status}: ${(await res.text()).slice(0, 200)}`);
 
-  // Always return a data URL: cross-origin audio makes the lip-sync analyser
-  // read zeros (ULTA-DESIGN §39), and data URLs sidestep CORS entirely.
-  const type = res.headers.get("content-type") || "";
-  if (type.includes("json")) {
-    const data = await res.json();
-    const b64 = data.audio ?? data.audio_base64 ?? data.data;
-    if (b64) return `data:audio/mpeg;base64,${b64}`;
-    const remote = data.audio_url ?? data.audioUrl;
-    if (remote) {
-      // Remote URL → fetch server-side and inline it, for the same CORS reason.
-      const audio = await fetch(remote);
-      const buf = Buffer.from(await audio.arrayBuffer());
-      return `data:audio/mpeg;base64,${buf.toString("base64")}`;
-    }
-    throw new Error("maya: unrecognised response shape");
-  }
-  const buf = Buffer.from(await res.arrayBuffer());
-  return `data:audio/mpeg;base64,${buf.toString("base64")}`;
+  const pcm = Buffer.from(await res.arrayBuffer());
+  if (pcm.length === 0) throw new Error("maya: empty audio");
+  return pcmToWavDataUrl(pcm);
 }
