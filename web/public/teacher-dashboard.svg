@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <rect width="920" height="560" fill="#faf7f2"/>
+
+  <!-- header -->
+  <text x="36" y="52" font-size="22" font-weight="700" fill="#534AB7" letter-spacing="3">ULTA</text>
+  <text x="110" y="52" font-size="15" fill="#6b6862">Class 11B · Physics · This week</text>
+  <text x="884" y="52" font-size="13" fill="#6b6862" text-anchor="end">Static preview</text>
+
+  <!-- left card: beliefs defeated this week -->
+  <rect x="36" y="80" width="520" height="300" rx="14" fill="#ffffff" stroke="#e8e2d8"/>
+  <text x="60" y="116" font-size="13" fill="#6b6862" letter-spacing="1.5">BELIEFS DEFEATED THIS WEEK</text>
+
+  <text x="60" y="156" font-size="14" fill="#2c2c2a">M-FRIC-04 · friction opposes velocity</text>
+  <rect x="60" y="166" width="440" height="12" rx="6" fill="#e8e2d8"/>
+  <rect x="60" y="166" width="352" height="12" rx="6" fill="#639922"/>
+  <text x="508" y="176" font-size="12" fill="#6b6862" text-anchor="end">16/20</text>
+
+  <text x="60" y="216" font-size="14" fill="#2c2c2a">M-NEWT-03 · action-reaction pairs cancel</text>
+  <rect x="60" y="226" width="440" height="12" rx="6" fill="#e8e2d8"/>
+  <rect x="60" y="226" width="198" height="12" rx="6" fill="#BA7517"/>
+  <text x="508" y="236" font-size="12" fill="#6b6862" text-anchor="end">9/20</text>
+
+  <text x="60" y="276" font-size="14" fill="#2c2c2a">M-NEWT-07 · heavier body pushes harder</text>
+  <rect x="60" y="286" width="440" height="12" rx="6" fill="#e8e2d8"/>
+  <rect x="60" y="286" width="110" height="12" rx="6" fill="#E24B4A"/>
+  <text x="508" y="296" font-size="12" fill="#6b6862" text-anchor="end">5/20</text>
+
+  <text x="60" y="348" font-size="13" fill="#6b6862">Most stubborn belief: M-NEWT-07 — average 6.2 teaching turns before repair</text>
+
+  <!-- right card: spot score distribution -->
+  <rect x="580" y="80" width="304" height="300" rx="14" fill="#ffffff" stroke="#e8e2d8"/>
+  <text x="604" y="116" font-size="13" fill="#6b6862" letter-spacing="1.5">SPOT SCORE, CLASS MEDIAN</text>
+  <text x="604" y="170" font-size="44" font-weight="700" fill="#2c2c2a">24 → 78</text>
+  <text x="604" y="196" font-size="13" fill="#6b6862">before → after teaching Chintu</text>
+
+  <rect x="604" y="230" width="30" height="110" rx="4" fill="#e8e2d8"/>
+  <rect x="604" y="306" width="30" height="34" rx="4" fill="#E24B4A"/>
+  <rect x="648" y="230" width="30" height="110" rx="4" fill="#e8e2d8"/>
+  <rect x="648" y="285" width="30" height="55" rx="4" fill="#BA7517"/>
+  <rect x="692" y="230" width="30" height="110" rx="4" fill="#e8e2d8"/>
+  <rect x="692" y="258" width="30" height="82" rx="4" fill="#BA7517"/>
+  <rect x="736" y="230" width="30" height="110" rx="4" fill="#639922"/>
+  <rect x="780" y="230" width="30" height="110" rx="4" fill="#e8e2d8"/>
+  <rect x="780" y="244" width="30" height="96" rx="4" fill="#639922"/>
+  <text x="604" y="364" font-size="12" fill="#6b6862">Weekly, five sessions per student</text>
+
+  <!-- bottom strip: who needs a session -->
+  <rect x="36" y="404" width="848" height="120" rx="14" fill="#ffffff" stroke="#e8e2d8"/>
+  <text x="60" y="440" font-size="13" fill="#6b6862" letter-spacing="1.5">STILL HOLDING THE BELIEF</text>
+  <g font-size="14" fill="#2c2c2a">
+    <text x="60" y="478">Ananya R · M-NEWT-07 · belief 0.84</text>
+    <text x="360" y="478">Karthik S · M-NEWT-07 · belief 0.79</text>
+    <text x="660" y="478">Divya M · M-NEWT-03 · belief 0.71</text>
+  </g>
+  <text x="60" y="504" font-size="12" fill="#6b6862">Assign a session: the diagnosis step will re-check before Chintu picks up the belief.</text>
+</svg>

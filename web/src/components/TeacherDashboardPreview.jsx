@@ -5,7 +5,7 @@ export default function TeacherDashboardPreview() {
   return (
     <figure className="dashboard-preview">
       <img
-        src="/teacher-dashboard.png"
+        src="/teacher-dashboard.svg"
         alt="Teacher dashboard preview"
         onError={(e) => { e.currentTarget.closest("figure").style.display = "none"; }}
       />

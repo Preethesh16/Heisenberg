@@ -13,6 +13,10 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
 
   async function startRecording() {
     if (disabled || recording) return;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      onSttFallback();
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -55,11 +59,12 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
         <button
           type="button"
           className={`mic-control__button${recording ? " mic-control__button--live" : ""}`}
-          onMouseDown={startRecording}
-          onMouseUp={stopRecording}
-          onMouseLeave={stopRecording}
-          onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-          onTouchEnd={stopRecording}
+          onPointerDown={(e) => {
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* synthetic pointer */ }
+            startRecording();
+          }}
+          onPointerUp={stopRecording}
+          onPointerCancel={stopRecording}
           disabled={disabled}
         >
           ⏺ {recording ? copy.mic.release : copy.mic.hold}
