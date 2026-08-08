@@ -33,8 +33,8 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 | Server + 6 routes | J | ✅ | verified live with USE_FIXTURES=false calling real agents |
 | Fixtures | J | ✅ | full-session arc works |
 | Orchestrator state machine | J | ✅ | |
-| Sarvam STT | J | 🟡 | wrapper + quiet fallback in; live provider untested |
-| Maya TTS | J | 🟡 | wrapper + quiet fallback in; live provider untested |
+| Sarvam STT | J | ✅ | live: real transcription round-trip through /api/stt |
+| Maya TTS | J | ✅ | live: 8.5s Chintu audio via /api/tts (Arjun, emotion tags, PCM→WAV) |
 | App shell + session screen | P | ✅ | §36 anatomy, browser-verified |
 | Chintu avatar wired | P | ✅ | imported as-is, isolation kept in props |
 | Belief meter | P | ✅ | 400ms lag, red→amber→green, Judge-driven |
