@@ -27,3 +27,10 @@
 **Decided:** Debate problems for the NEWT pair are the classic horse-cart and truck-scooter setups because their common arguments are the strongest steelmen of each false belief — Chintu argues best from them.
 **Blocked:** No.
 **Next:** Live API tests of all four agents once a key is available; adversarial Chintu testing; hand agent call signatures to Jeswin at Sync 1.
+
+### T+2:40 · feat/agents · ab103fc
+**Did:** Read Jeswin's feat/core routes before Sync 1 and fixed the seam from my side. His server is ESM ("type": "module" in server/package.json) and his routes call chintu({session, studentText}), judge({session, studentText}), verify({session}) via dynamic import — my CommonJS agents with chintuTurn/judgeTurn names would have silently fallen back to fixtures forever. Converted all agents to ESM (server/agents/package.json sets type: module inside my folder) and added route-facing adapters with his exact names and signatures. Simulated his import() calls end to end: all agents load, degrade quietly without a key, and the judge fails closed on transfer answers too.
+**Files:** server/agents/* (all), new misconceptions.js shared loader
+**Decided:** The session object his routes hand over contains diagnosis.correct_model, so the chintu() adapter is now the enforced isolation boundary — it extracts exactly {misconception, common_argument, problem, history} and the isolation test now attacks a full session object, not just a careless spread. Keyword gate refactored to a pure exported applyKeywordGate() so the demo-critical behaviour is testable without stubbing. Judge on transfer answers judges against transferProblem.expected_reasoning (Jeswin flagged transfer-reuses-judge as a contract gap; this makes my side handle it either way).
+**Blocked:** Still no ANTHROPIC_API_KEY for live tests. NOTE FOR SYNC 1: no contract shapes changed, but the agent module interface (export names + session-based signatures) is now matched to feat/core — Jeswin should confirm.
+**Next:** Adversarial Chintu prompts + live vision test when a key lands; otherwise ready to merge at Sync 1 (order: Jeswin, then me, then Preethesh).
