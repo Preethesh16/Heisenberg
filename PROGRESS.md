@@ -12,9 +12,9 @@
 
 | | Deepthi · `feat/agents` | Jeswin · `feat/core` | Preethesh · `feat/web` |
 |---|---|---|---|
-| **Now** | not started | not started | full mock session done, verified end to end |
-| **Last merge** | — | — | a54bf8e |
-| **Blocked on** | — | — | real routes from feat/core to flip VITE_USE_MOCKS=false |
+| **Now** | all four agents + 3 misconception files merged; seam to feat/core verified live | server skeleton merged (routes, fixtures, orchestrator, voice wrappers) | full mock session done, verified end to end |
+| **Last merge** | 4135711 | 1850685 | a54bf8e |
+| **Blocked on** | ANTHROPIC_API_KEY for live vision + adversarial tests | provider keys for live Sarvam/Maya | real routes from feat/core to flip VITE_USE_MOCKS=false |
 
 ### UI planning note
 
@@ -24,17 +24,17 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 
 | Component | Owner | Status | Notes |
 |---|---|---|---|
-| M-FRIC-04 misconception file | D | ⬜ | |
-| M-NEWT-03, M-NEWT-07 | D | ⬜ | after the loop works |
-| Diagnosis agent | D | ⬜ | |
-| Chintu agent | D | ⬜ | isolation test must pass |
-| Judge agent | D | ⬜ | must fail keyword-only answers |
-| Verifier agent | D | ⬜ | cuttable at Sync 2 |
-| Server + 6 routes | J | ⬜ | |
-| Fixtures | J | ⬜ | **unblocks the other two — do first** |
-| Orchestrator state machine | J | ⬜ | |
-| Sarvam STT | J | ⬜ | |
-| Maya TTS | J | ⬜ | |
+| M-FRIC-04 misconception file | D | ✅ | full CONTRACTS §4 schema |
+| M-NEWT-03, M-NEWT-07 | D | ✅ | library capped at three per anti-goals |
+| Diagnosis agent | D | 🟡 | code + prompt done, degrades to UNKNOWN; live vision test needs API key |
+| Chintu agent | D | ✅ | isolation test passes against full session object; adversarial run needs key |
+| Judge agent | D | ✅ | keyword gate verified: "because relative motion" fails |
+| Verifier agent | D | ✅ | deterministic M-FRIC-04 fallback if API down |
+| Server + 6 routes | J | ✅ | verified live with USE_FIXTURES=false calling real agents |
+| Fixtures | J | ✅ | full-session arc works |
+| Orchestrator state machine | J | ✅ | |
+| Sarvam STT | J | 🟡 | wrapper + quiet fallback in; live provider untested |
+| Maya TTS | J | 🟡 | wrapper + quiet fallback in; live provider untested |
 | App shell + session screen | P | ✅ | §36 anatomy, browser-verified |
 | Chintu avatar wired | P | ✅ | imported as-is, isolation kept in props |
 | Belief meter | P | ✅ | 400ms lag, red→amber→green, Judge-driven |
@@ -49,11 +49,11 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 ## Sync log
 
 ### SYNC 1 — T+1:30
-- Merged:
-- Working end to end:
-- Blocked:
-- Decided:
-- Cut:
+- Merged: feat/core (1850685, Jeswin first per plan), feat/web (0f050b3), feat/agents (4135711, rebased)
+- Working end to end: fixture path clicks through; USE_FIXTURES=false verified live — routes load the real agents, agents degrade in character without a key
+- Blocked: ANTHROPIC_API_KEY (agents), Sarvam/Maya keys (voice)
+- Decided: agent module interface is ESM with session-based exports chintu/judge/verify matching routes.js; transfer answers judged against transferProblem.expected_reasoning
+- Cut: nothing
 
 ### SYNC 2 — T+2:45
 **Decision point: is a real session running end to end? If no, cut the Verifier and Transfer stage now.**
@@ -79,6 +79,8 @@ Anything that changes how the system behaves. Reason is mandatory — a decision
 | 0:20 | all | M-FRIC-04 is the demo | One flawless session beats five shaky ones |
 | 1:40 | P | Mock layer lives inside web/ behind VITE_USE_MOCKS | server/fixtures don't exist yet and web can't create them; flag flip swaps to real routes with zero component changes |
 | 1:40 | P | Belief meter takes the Judge's belief_strength, not Chintu's | the meter only moves when the Judge confirms the model shifted |
+| 2:00 | D | Judge keyword rule enforced in prompt AND a code gate (pass with empty repair_evidence or <8 words → fail) | prompts drift under pressure; the demo-critical behaviour must be deterministic |
+| 2:40 | D | Agents are ESM with route-facing adapters; chintu() adapter is the isolation boundary | session handed by routes contains correct_model; extraction must be field-by-field where the routes call in |
 | | | | |
 
 ---
