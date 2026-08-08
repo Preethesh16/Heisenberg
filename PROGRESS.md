@@ -14,7 +14,7 @@
 |---|---|---|---|
 | **Now** | all four agents + 3 misconception files merged; seam to feat/core verified live | server skeleton merged (routes, fixtures, orchestrator, voice wrappers) | fully live browser session verified: vision → debate → judge → transfer → defeat |
 | **Last merge** | ab56f7e | 1850685 | (this merge) |
-| **Blocked on** | — | provider keys for live Sarvam/Maya | hardware mic check |
+| **Blocked on** | — | — | hardware mic check |
 
 ### UI planning note
 

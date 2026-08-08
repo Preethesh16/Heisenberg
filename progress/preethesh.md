@@ -83,3 +83,10 @@
 **Decided:** Nothing code-side. Note for the runbook: data-URL audio keeps the lip-sync analyser same-origin, exactly as ULTA-DESIGN §39 wants.
 **Blocked:** No. STT through a real microphone still needs the hardware pass — headless fake devices can't test that honestly.
 **Next:** Demo-laptop run with speakers on, backup recording.
+
+### T+4:30 · full-project sweep after Deepthi's transfer fix
+**Did:** Pulled her standalone transfer judging (drops debate history, no spot penalty) and ran the complete three-tier sweep: mock flow ✔, fixtures-mode audit suite ✔, fully live session ✔ — and this time the FIRST transfer answer passed, no retry. The flake I flagged at T+4:00 is confirmed fixed. The live run also exercised voice end to end: zero TTS/STT failures in the server log, every Chintu line spoken by Maya.
+**Files:** none — verification only; PROGRESS.md voice rows marked live-verified as merging party.
+**Decided:** Nothing. The stack is demo-ready from the software side.
+**Blocked:** No.
+**Next:** Only demo-day items remain: laptop run, backup recording, runbook, hardware mic pass, SYNC 3 freeze.
