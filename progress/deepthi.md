@@ -56,6 +56,13 @@
 **Blocked:** Only the real handwritten photo test — needs a human with pen, paper, and a phone camera.
 **Next:** Photo test when someone writes one; otherwise agents are done.
 
+### T+4:10 · main · vision verified, full demo session rehearsed
+**Did:** Merged Jeswin's live Maya TTS fix onto main preserving his authorship (cherry-pick — his feat/core had diverged). Rendered two synthetic handwritten-style solutions (PIL, ruled paper, jitter) and live-tested the vision path both ways. Found and fixed an over-diagnosis bug: a CORRECT solution was diagnosed M-FRIC-04 at 0.85 because the prompt primed the model to hunt for an error. prompts/diagnose.md now solves the problem independently first and returns UNKNOWN confidence 0 when the student is right — retested: correct → UNKNOWN 0, wrong → M-FRIC-04 0.95 with step-level evidence. Then ran the complete M-FRIC-04 demo session live through the server: photo → diagnosis 0.95 → Chintu argues (belief 0.95, "Left side, obviously") → Judge fails "because relative motion yaar" with teaching-quality missing text → Chintu gets stubborn (0.75, "Nahi yaar, you're confusing me with relative motion gyaan") → Judge passes real teaching (0.2, scores 95/90/88) → Verifier generates a fresh accelerating-car transfer problem. The target session works end to end, live.
+**Files:** prompts/diagnose.md, data/test-images/wrong-friction.jpg, data/test-images/correct-friction.jpg
+**Decided:** Test images live in data/test-images/ as regression assets — the diagnose prompt can't be tuned safely without a known-wrong and known-correct pair. Synthetic renders are not a substitute for one real phone photo (lighting, blur, skew), which stays on the manual list.
+**Blocked:** No.
+**Next:** Real phone photo when available; demo rehearsal on the venue laptop.
+
 ---
 
 ## 90-second pitch script (Deepthi delivers)

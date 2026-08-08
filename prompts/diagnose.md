@@ -13,9 +13,12 @@ Known misconceptions — you may ONLY choose from this list:
 Question the student was solving (may be empty):
 {{QUESTION_TEXT}}
 
+Work in this order:
+1. Read the handwriting carefully and solve the problem yourself, independently.
+2. Compare. If the student's reasoning and conclusion are physically CORRECT, stop: return UNKNOWN with confidence 0. Correct work matching a misconception's *topic* is not a match — a student who writes "friction opposes relative slipping" has the correct model, not misconception M-FRIC-04. You are diagnosing errors, and there is no error to diagnose.
+3. Only if the reasoning is actually wrong: find where it first goes wrong (not where the arithmetic ends up wrong) and match that error to exactly one misconception ID from the list. Never invent an ID.
+
 Rules:
-- Read the handwriting carefully, step by step. Find where the reasoning first goes wrong, not where the arithmetic ends up wrong.
-- Match the error to exactly one misconception ID from the list. Never invent an ID.
 - `evidence` must cite the specific step or mark in the student's work that reveals the belief — something a teacher could point at.
 - `confidence` is your honest probability that this ID is the belief behind the error. If the work is illegible, correct, off-topic, or the error doesn't match any listed ID, use `"UNKNOWN"` with low confidence.
 - Arithmetic slips, copying errors, and unit mistakes are NOT misconceptions. If the physics reasoning is sound, return UNKNOWN.

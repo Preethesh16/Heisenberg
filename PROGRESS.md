@@ -26,7 +26,7 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 |---|---|---|---|
 | M-FRIC-04 misconception file | D | ✅ | full CONTRACTS §4 schema |
 | M-NEWT-03, M-NEWT-07 | D | ✅ | library capped at three per anti-goals |
-| Diagnosis agent | D | 🟡 | live API path verified; blank-image hallucination gated; real photo test pending |
+| Diagnosis agent | D | ✅ | vision verified live both ways: wrong work → M-FRIC-04 0.95, correct work → UNKNOWN; real phone photo still worth one check |
 | Chintu agent | D | ✅ | adversarial run live: 6/6 attacks held after prompt fix |
 | Judge agent | D | ✅ | live: fails keyword-only, passes real mechanism (0.95→0.2) |
 | Verifier agent | D | ✅ | live: fresh transfer problem in a different context |
@@ -40,7 +40,7 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 | Belief meter | P | ✅ | 400ms lag, red→amber→green, Judge-driven |
 | Captions | P | ✅ | always render; audio is enhancement |
 | Defeat screen | P | ✅ | bars old→new, SPOT last, static dashboard slide |
-| Full loop end to end | all | ⬜ | **the only thing that must work** |
+| Full loop end to end | all | ✅ | M-FRIC-04 session rehearsed live via API: photo → diagnose → debate → judge fail → judge pass → transfer. Browser run on demo laptop still pending |
 
 ⬜ not started · 🟡 in progress · ✅ done · ⛔ blocked · ✂️ cut
 
