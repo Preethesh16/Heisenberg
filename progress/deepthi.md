@@ -20,3 +20,10 @@
 **Decided:** The keyword rule is enforced twice — in the prompt AND a code gate (a pass with empty repair_evidence or under 8 words downgrades to fail). Prompts alone drift under pressure; the gate makes the demo-critical behaviour deterministic. Judge outage returns passed: false with "continue the debate", because a wrongly-passed session is worse than one extra debate turn.
 **Blocked:** No.
 **Next:** M-NEWT-03 and M-NEWT-07 misconception files, then push.
+
+### T+2:05 · feat/agents · e9c7262
+**Did:** M-NEWT-03 (action/reaction cancel) and M-NEWT-07 (heavier body exerts greater force), full CONTRACTS §4 schema. Validated all three files load and carry every field; diagnosis ID list now builds from three real misconceptions. Isolation test still green. Stopping at three per the anti-goals — no more files until the loop runs end to end.
+**Files:** data/misconceptions/M-NEWT-03.json, data/misconceptions/M-NEWT-07.json
+**Decided:** Debate problems for the NEWT pair are the classic horse-cart and truck-scooter setups because their common arguments are the strongest steelmen of each false belief — Chintu argues best from them.
+**Blocked:** No.
+**Next:** Live API tests of all four agents once a key is available; adversarial Chintu testing; hand agent call signatures to Jeswin at Sync 1.
