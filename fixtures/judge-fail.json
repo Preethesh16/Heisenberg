@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "belief_strength": 0.58,
+  "tone": "neutral",
+  "repair_evidence": "Student named relative motion but did not explain the contact surfaces.",
+  "missing": "Has not distinguished object velocity from relative slipping.",
+  "scores": { "solve": 72, "spot": 61, "explain": 44 }
+}
