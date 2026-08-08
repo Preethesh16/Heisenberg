@@ -55,3 +55,10 @@
 **Decided:** The two Chintu.jsx edits are surgical defect fixes named by the audit (flash re-fire, gesture-less AudioContext), not a rewrite — emotion tables, gestures, reduced-motion, and the component API are untouched. Transfer retry gives no textual feedback beyond the meter and mic reopening: the Judge's prose stays out of the student-facing surface, matching the no-praise/report-the-belief rule.
 **Blocked:** No. Verified: npm run build; full mock flow; fixtures-mode flow with VITE_USE_MOCKS=false; intercepted stt fallback:true reveals the input; delayed non-null TTS = 1 request 1 play; real-judge run — keyword-only transfer answer rejected, session stays on transfer, mechanistic answer finishes; every chintu/judge/verify call carries the backend sessionId; mic provably inert while locked; praise grep clean.
 **Next:** Real-mic hold-to-talk pass on hardware; re-run everything when an ANTHROPIC_API_KEY lands.
+
+### T+3:20 · feat/web · (verification only, no code change)
+**Did:** Rebased onto main after Deepthi's agents audit fixes (coded yield rule, grounded keyword gate, judge dedup, image magic bytes, request timeouts) and re-ran the full web verification suite against her new code: build, complete mock-mode session, fixtures-mode audit suite (stt fallback:true, delayed TTS 1-request-1-play, both turn locks, judged transfer, backend sessionId on every call), and the real-judge run — keyword-only transfer answer still rejected, mechanistic answer still passes.
+**Files:** none in web/ — no frontend change was needed.
+**Decided:** Her diagnose agent now detects jpeg/png/gif from magic bytes, so the frontend JPEG normalization is a size optimisation rather than a correctness requirement — keeping it, phone photos still need the 1600px cap to stay under the JSON limit. should_yield staying presentation-only on the frontend means her coded yield rule changes nothing on my side.
+**Blocked:** No.
+**Next:** Hardware mic pass; live re-run when a key lands.
