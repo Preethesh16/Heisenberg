@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "belief_strength": 0.12,
+  "tone": "neutral",
+  "repair_evidence": "Student explained that friction acts on the block in the direction of the belt's motion because the belt slips forward under it, and connected that to the block accelerating.",
+  "missing": "",
+  "scores": { "solve": 86, "spot": 91, "explain": 88 }
+}

@@ -1,0 +1,8 @@
+{
+  "topic": "Friction",
+  "misconception_id": "M-FRIC-04",
+  "misconception": "Friction always acts opposite to object velocity",
+  "evidence": "Student used ground-frame velocity to determine friction direction in step 3.",
+  "confidence": 0.94,
+  "correct_model": "Friction opposes relative slipping or tendency of slipping between contacting surfaces."
+}

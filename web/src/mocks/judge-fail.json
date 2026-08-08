@@ -1,0 +1,18 @@
+[
+  {
+    "passed": false,
+    "belief_strength": 0.78,
+    "tone": "neutral",
+    "repair_evidence": "Student challenged the rule but has not yet named a mechanism.",
+    "missing": "Has not distinguished object velocity from relative slipping.",
+    "scores": { "solve": 74, "spot": 41, "explain": 33 }
+  },
+  {
+    "passed": false,
+    "belief_strength": 0.44,
+    "tone": "neutral",
+    "repair_evidence": "Student named relative slipping between block and belt and it landed.",
+    "missing": "Has not yet explained why the block accelerates forward as a result.",
+    "scores": { "solve": 79, "spot": 66, "explain": 52 }
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "reply": "Okay so the belt moves right, block sits on it. Block will slide back relative to ground, so friction on the block points left. Simple, na?",
+    "emotion": "confident",
+    "gesture": "point_board",
+    "belief_strength": 0.92,
+    "should_yield": false
+  },
+  {
+    "reply": "Nahi yaar, friction always opposes motion. Sir also taught this — it's literally the first line in the notes. The block moves, friction opposes it. Why are you complicating?",
+    "emotion": "stubborn",
+    "gesture": null,
+    "belief_strength": 0.78,
+    "should_yield": false
+  },
+  {
+    "reply": "Wait… relative to the belt the block slips backward? But the block isn't even moving yet, so what is friction opposing exactly?",
+    "emotion": "confused",
+    "gesture": null,
+    "belief_strength": 0.44,
+    "should_yield": false
+  },
+  {
+    "reply": "Ohhh. I was looking at the object's motion instead of what the surfaces were doing relative to each other. The belt slides forward under the block, so friction drags the block forward. That's why it starts moving at all.",
+    "emotion": "convinced",
+    "gesture": "nod",
+    "belief_strength": 0.12,
+    "should_yield": true
+  }
+]
