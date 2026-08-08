@@ -1,0 +1,12 @@
+{
+  "id": "M-FRIC-04",
+  "topic": "Friction",
+  "concept": "Direction of friction",
+  "false_belief": "Friction always acts opposite object velocity.",
+  "observable_evidence": "Learner determines friction direction from velocity relative to the ground.",
+  "common_argument": "If it's moving right, friction has to point left.",
+  "repair_criteria": "Learner distinguishes object velocity from relative slipping between contact surfaces.",
+  "debate_problem": "A block sits on a conveyor belt that starts moving right. Which way does friction act on the block?",
+  "transfer_contexts": ["Accelerating vehicle", "Rolling wheel", "Inclined surface"],
+  "correct_model": "Friction opposes relative slipping or tendency of slipping between contacting surfaces."
+}
