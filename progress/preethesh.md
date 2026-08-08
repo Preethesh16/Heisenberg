@@ -41,3 +41,10 @@
 **Decided:** Mic uses pointer events with capture instead of mouse+touch pairs — one code path for both, and release-outside-the-button still ends the recording. setPointerCapture is wrapped in try/catch and startRecording bails to the text fallback when MediaRecorder or getUserMedia is missing, because the e2e run proved a throw there would otherwise eat the handler. Dashboard is an SVG so it stays a crisp static slide with zero build tooling.
 **Blocked:** No. Full session verified end to end in headless Chromium; screenshots of session and defeat screens checked by eye.
 **Next:** Flip VITE_USE_MOCKS=false when the real routes exist; hold the fixture flag during the demo.
+
+### T+2:00 · feat/web · 173d70f
+**Did:** Rebased onto main after Jeswin's feat/core merge, pointed the dev proxy at :3001 (his server's port), and ran the full session against the REAL endpoints with VITE_USE_MOCKS=false — diagnose, chintu, judge, verify all through his fixture-backed routes. Judge passed on turn 2, transfer showed, defeat screen reached. Zero component changes needed, exactly as the toggle promised.
+**Files:** web/vite.config.js
+**Decided:** web/.env.local keeps VITE_USE_MOCKS=true as the committed default — the in-web mocks are the last-resort safety net that works even if the server process dies mid-demo; the server path is proven and one flag away.
+**Blocked:** No.
+**Next:** Re-verify once Deepthi's real agents replace the server fixtures.
