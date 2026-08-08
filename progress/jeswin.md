@@ -1,5 +1,10 @@
 # Progress — Jeswin (`feat/core`)
 
+### 2026-08-08 · multimodal diagnosis route
+**Did:** `/api/diagnose` now accepts image evidence, spoken/typed text evidence, or both, while rejecting requests with neither and retaining all size/type limits. Fixture and live session creation share the same input contract.
+**Tests:** 22/22 core checks, including a text-only session with no image.
+**Blocked:** No.
+
 ### 2026-08-08 · post-hackathon core audit
 **Did:** Re-audited the complete HTTP/orchestrator boundary. Added executable coverage for exact-session isolation, legal stage transitions, paired-route turn deduplication, post-pass Chintu restrictions, idempotent verification, transfer completion, cross-session fixture independence, bounded JSON/image/audio input, JSON-only errors, providerless fallbacks, dynamic concept fallbacks, and idle-session cleanup. Live unknown diagnoses no longer create a friction session. STT now receives `sessionId`; Sarvam defaults to the live-tested `saaras:v3` transcription path while retaining the legacy rollback.
 **Tests:** 21/21 core checks, both dependency audits clean, providerless routes and oversized uploads exercised manually, Maya-to-Sarvam round trip verified live.

@@ -140,9 +140,12 @@ router.get("/health", (_req, res) => {
 
 router.post("/diagnose", async (req, res) => {
   const { imageBase64, questionText } = req.body ?? {};
-  if (typeof imageBase64 !== "string" || imageBase64.length === 0) return fail(res, 400, "invalid_image");
-  if (imageBase64.length > MAX_IMAGE_BASE64) return fail(res, 413, "image_too_large");
+  const hasImage = typeof imageBase64 === "string" && imageBase64.length > 0;
+  const hasText = typeof questionText === "string" && questionText.trim().length > 0;
+  if (imageBase64 !== undefined && typeof imageBase64 !== "string") return fail(res, 400, "invalid_image");
   if (questionText !== undefined && typeof questionText !== "string") return fail(res, 400, "invalid_request");
+  if (!hasImage && !hasText) return fail(res, 400, "missing_learning_evidence");
+  if (hasImage && imageBase64.length > MAX_IMAGE_BASE64) return fail(res, 413, "image_too_large");
   if (questionText?.length > MAX_QUESTION_CHARS) return fail(res, 400, "question_too_long");
 
   sttFixtureSeq = 0; // a fresh demo session restarts the fixture story

@@ -79,6 +79,14 @@ try {
   assert.equal(first.data.diagnosable, true);
   pass("diagnose creates isolated fixture sessions");
 
+  out = await json("/diagnose", {
+    questionText: "For a quadratic equation I used b over a as the product of its roots because b is next to x.",
+  });
+  assert.equal(out.status, 200);
+  assert.equal(out.data.diagnosable, true);
+  assert.ok(out.data.sessionId);
+  pass("voice or text reasoning can start a session without an image");
+
   const sid = first.data.sessionId;
   out = await json("/verify", { sessionId: sid });
   assert.equal(out.status, 409);
