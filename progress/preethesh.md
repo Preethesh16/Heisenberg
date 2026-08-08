@@ -62,3 +62,10 @@
 **Decided:** Her diagnose agent now detects jpeg/png/gif from magic bytes, so the frontend JPEG normalization is a size optimisation rather than a correctness requirement — keeping it, phone photos still need the 1600px cap to stay under the JSON limit. should_yield staying presentation-only on the frontend means her coded yield rule changes nothing on my side.
 **Blocked:** No.
 **Next:** Hardware mic pass; live re-run when a key lands.
+
+### T+3:45 · feat/web · (sequencing fix + first fully live session)
+**Did:** ANTHROPIC_API_KEY landed in server/.env — ran the first fully live session and hit a real defect: with live agents the transfer answer kept failing with belief snapping to 0.85. Root cause was mine: the frontend fired /api/chintu and /api/judge in parallel per turn, and because the server session is stateful, Chintu's rebuttal interleaved with the verdict and verify — the Judge then read a history where Chintu was still arguing after the pass. Reproduced clean via sequential curl calls (transfer passed), fixed sendStudentTurn to call judge first, then chintu. Re-ran fully live: real vision diagnosis of the sample handwriting → live Chintu debate → judge pass → live-generated transfer problem → transfer verified → M-FRIC-04 DEFEATED. First try after the fix.
+**Files:** web/src/hooks/useUltaSession.js
+**Decided:** Judge before Chintu, always sequential. Judge-first also means the verdict is never influenced by the rebuttal Chintu is composing to the same argument. Costs one agent-latency per turn over parallel; correctness of the live session wins.
+**Blocked:** No.
+**Next:** Hardware mic pass; Maya/Sarvam keys for live voice.

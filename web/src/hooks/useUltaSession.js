@@ -151,10 +151,12 @@ export default function useUltaSession() {
     dispatch({ type: "STUDENT_TURN_SENT", text });
     let chintu, judge;
     try {
-      [chintu, judge] = await Promise.all([
-        api.chintuTurn({ sessionId, studentText: text }),
-        api.judgeTurn({ sessionId, studentText: text }),
-      ]);
+      // Sequential, judge first. The server session is stateful: parallel
+      // calls interleave Chintu's reply with the verdict and verify, and the
+      // Judge ends up reading a history where Chintu is still arguing after
+      // the pass. Ordered calls keep the narrative coherent for live agents.
+      judge = await api.judgeTurn({ sessionId, studentText: text });
+      chintu = await api.chintuTurn({ sessionId, studentText: text });
     } catch {
       dispatch({ type: "TURN_FAILED" });
       return;

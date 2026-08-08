@@ -12,9 +12,9 @@
 
 | | Deepthi · `feat/agents` | Jeswin · `feat/core` | Preethesh · `feat/web` |
 |---|---|---|---|
-| **Now** | all four agents + 3 misconception files merged; seam to feat/core verified live | server skeleton merged (routes, fixtures, orchestrator, voice wrappers) | full mock session done, verified end to end |
-| **Last merge** | 4135711 | 1850685 | a54bf8e |
-| **Blocked on** | ANTHROPIC_API_KEY for live vision + adversarial tests | provider keys for live Sarvam/Maya | real routes from feat/core to flip VITE_USE_MOCKS=false |
+| **Now** | all four agents + 3 misconception files merged; seam to feat/core verified live | server skeleton merged (routes, fixtures, orchestrator, voice wrappers) | fully live browser session verified: vision → debate → judge → transfer → defeat |
+| **Last merge** | ab56f7e | 1850685 | (this merge) |
+| **Blocked on** | — | provider keys for live Sarvam/Maya | hardware mic check |
 
 ### UI planning note
 
@@ -40,7 +40,7 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 | Belief meter | P | ✅ | 400ms lag, red→amber→green, Judge-driven |
 | Captions | P | ✅ | always render; audio is enhancement |
 | Defeat screen | P | ✅ | bars old→new, SPOT last, static dashboard slide |
-| Full loop end to end | all | ✅ | M-FRIC-04 session rehearsed live via API: photo → diagnose → debate → judge fail → judge pass → transfer. Browser run on demo laptop still pending |
+| Full loop end to end | all | ✅ | live via API AND through the browser UI (headless): photo → diagnose → debate → judge pass → transfer verified → defeat screen. Demo laptop run still pending |
 
 ⬜ not started · 🟡 in progress · ✅ done · ⛔ blocked · ✂️ cut
 
@@ -57,9 +57,9 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 
 ### SYNC 2 — T+2:45
 **Decision point: is a real session running end to end? If no, cut the Verifier and Transfer stage now.**
-- Merged:
-- Verdict:
-- Cut:
+- Merged: feat/agents (ab56f7e), feat/web (judge-first sequencing fix)
+- Verdict: YES — fully live session through the web UI: real vision diagnosis of the sample photo, live Chintu debate, judge pass, live transfer problem, transfer verified, defeat screen. Frontend defect found and fixed at this seam: parallel chintu+judge calls interleaved on the stateful server session and corrupted the Judge's view of history; turn calls are now sequential, judge first.
+- Cut: nothing — Verifier and Transfer stay.
 
 ### SYNC 3 — T+3:45 — FEATURE FREEZE
 - Merged:
