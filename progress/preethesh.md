@@ -76,3 +76,10 @@
 **Decided:** Nothing cut. One flake to flag for the team: the live Judge sometimes rejects the FIRST transfer answer with belief snapping to 0.85 even when the answer states the expected reasoning (seen once here, passed on retry; the earlier post-fix run passed first try). The UI handles it exactly as designed — stays on transfer, mic reopens, retry passes — so the demo survives it, but Deepthi may want to look at how the transfer verdict weighs history. Also: server warns MAYA_VOICE_ID is obsolete (use MAYA_VOICE=Ananya|Arjun) — whoever holds the Maya key should update server/.env.
 **Blocked:** No.
 **Next:** Demo-laptop run, backup recording, hardware mic pass.
+
+### T+4:15 · voice live
+**Did:** Maya and Sarvam keys landed in server/.env. Maya first failed with fetch errors — the local .env carried a stale MAYA_TTS_URL (v3.mayaresearch.ai, host doesn't resolve); corrected it to the endpoint documented in server/voice/maya.js and .env.example (tts.mayaresearch.ai/v1/tts). After the fix: /api/tts returns real WAV data URLs (~500KB per line), and a full round trip — Maya speaks a sentence, the WAV goes into /api/stt — came back transcribed VERBATIM by Sarvam. Then verified in the app itself: live session, Chintu's opener audio landed in the single audio element as a data URL, played exactly once, ended cleanly, captions stayed up throughout. The TTS-lifecycle fix holds under real audio latency.
+**Files:** none in the repo — only the local untracked server/.env value.
+**Decided:** Nothing code-side. Note for the runbook: data-URL audio keeps the lip-sync analyser same-origin, exactly as ULTA-DESIGN §39 wants.
+**Blocked:** No. STT through a real microphone still needs the hardware pass — headless fake devices can't test that honestly.
+**Next:** Demo-laptop run with speakers on, backup recording.
