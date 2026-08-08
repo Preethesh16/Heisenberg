@@ -70,6 +70,9 @@ const EMOTIONS = {
 
 export const EMOTION_NAMES = Object.keys(EMOTIONS);
 
+// One Web Audio graph per <audio> element, for the element's whole lifetime.
+const audioGraphs = new WeakMap();
+
 /**
  * Fallback only. Agent 2 should report `emotion` directly; use this when it
  * doesn't, or when you're driving the avatar from the Judge's score alone.
@@ -110,26 +113,42 @@ export default function Chintu({
 
   // The aha moment: fire "surprised" once, the turn belief crosses below 0.5.
   useEffect(() => {
-    if (prev.current >= 0.5 && beliefStrength < 0.5) {
+    const crossed = prev.current >= 0.5 && beliefStrength < 0.5;
+    prev.current = beliefStrength; // track every change, or the flash re-fires
+    if (crossed) {
       setFlash("surprised");
       const t = setTimeout(() => setFlash(null), 800);
       return () => clearTimeout(t);
     }
-    prev.current = beliefStrength;
   }, [beliefStrength]);
 
   // Amplitude-driven lip sync from Maya's audio.
-  // Note: create the AudioContext inside a user gesture, and only ever call
-  // createMediaElementSource once per <audio> element.
+  // createMediaElementSource runs once per <audio> element, ever — the graph
+  // is cached per element so remounts reuse it instead of throwing. The
+  // context unlocks on the first genuine user gesture (browsers create
+  // gesture-less contexts suspended, which reads as an all-zero analyser).
   useEffect(() => {
-    if (!audioRef?.current) return;
-    let ctx, raf;
+    const el = audioRef?.current;
+    if (!el) return;
+    let raf;
+    let unlock;
     try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      let graph = audioGraphs.get(el);
+      if (!graph) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        graph = { ctx, source: ctx.createMediaElementSource(el) };
+        audioGraphs.set(el, graph);
+      }
+      const { ctx, source } = graph;
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 256;
-      ctx.createMediaElementSource(audioRef.current).connect(analyser);
+      source.connect(analyser);
       analyser.connect(ctx.destination);
+      unlock = () => { ctx.resume().catch(() => {}); };
+      if (ctx.state === "suspended") {
+        window.addEventListener("pointerdown", unlock, { once: true });
+        window.addEventListener("keydown", unlock, { once: true });
+      }
       const buf = new Uint8Array(analyser.frequencyBinCount);
       const loop = () => {
         analyser.getByteFrequencyData(buf);
@@ -139,11 +158,18 @@ export default function Chintu({
         raf = requestAnimationFrame(loop);
       };
       loop();
+      return () => {
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+        // keep ctx and source alive — they belong to the element for its lifetime
+        try { source.disconnect(analyser); analyser.disconnect(); } catch { /* already gone */ }
+      };
     } catch (err) {
       // Already-connected element or blocked context: fall back to the CSS flap.
       console.warn("ULTA lip sync unavailable, using fallback", err);
+      return () => { if (raf) cancelAnimationFrame(raf); };
     }
-    return () => { if (raf) cancelAnimationFrame(raf); if (ctx) ctx.close(); };
   }, [audioRef]);
 
   const name = flash ?? emotion ?? emotionForBelief(beliefStrength);

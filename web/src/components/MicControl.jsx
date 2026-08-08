@@ -17,8 +17,9 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
       onSttFallback();
       return;
     }
+    let stream = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       chunksRef.current = [];
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
@@ -26,8 +27,12 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
         stream.getTracks().forEach((t) => t.stop());
         const audioBlob = new Blob(chunksRef.current, { type: recorder.mimeType });
         try {
-          const { text: spoken } = await speechToText({ audioBlob, lang, sessionId });
-          if (spoken?.trim()) onStudentText(spoken.trim());
+          const result = await speechToText({ audioBlob, lang, sessionId });
+          const spoken = result?.text?.trim();
+          // The server reports Sarvam failures as 200 + fallback:true — same
+          // quiet degradation as a thrown request: reveal the text input.
+          if (result?.fallback || !spoken) onSttFallback();
+          else onStudentText(spoken);
         } catch {
           onSttFallback();
         }
@@ -37,6 +42,7 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
       setRecording(true);
     } catch {
       // Mic denied or unavailable — same quiet fallback as an STT outage.
+      stream?.getTracks().forEach((t) => t.stop());
       onSttFallback();
     }
   }

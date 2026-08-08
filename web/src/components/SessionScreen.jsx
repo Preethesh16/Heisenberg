@@ -16,23 +16,26 @@ export default function SessionScreen({ session, sendStudentTurn, sendTransferAn
   // One <audio> element for the whole session — createMediaElementSource only
   // runs once per element, so we swap src per turn instead of remounting.
   const audioRef = useRef(null);
+  // A newer Chintu line supersedes an in-flight TTS request; unmount voids all.
+  const ttsSeqRef = useRef(0);
+  useEffect(() => () => { ttsSeqRef.current = -1; }, []);
 
   useEffect(() => {
-    if (!ui.pendingAudio) return;
-    let cancelled = false;
+    const item = ui.pendingAudio;
+    if (!item) return;
+    const seq = ++ttsSeqRef.current;
+    consumeAudio(); // clears pendingAudio; `item` is already captured, request runs once
     (async () => {
       try {
-        const { audioUrl } = await textToSpeech(ui.pendingAudio);
-        if (!cancelled && audioUrl && audioRef.current) {
-          audioRef.current.src = audioUrl;
-          await audioRef.current.play();
-        }
+        const { audioUrl } = await textToSpeech(item);
+        if (seq !== ttsSeqRef.current || !audioUrl || !audioRef.current) return;
+        audioRef.current.src = audioUrl;
+        await audioRef.current.play();
       } catch {
-        // TTS down — captions already carry the line. Nothing to show.
+        // TTS down or play() rejected — captions already carry the line.
+        setSpeaking(false);
       }
     })();
-    consumeAudio();
-    return () => { cancelled = true; };
   }, [ui.pendingAudio, consumeAudio]);
 
   const inDebate = stage === "debate";

@@ -14,10 +14,12 @@ export const copy = {
     diagnosing: "Reading your work…",
   },
 
+  // "You are the teacher" stays up for the entire session (ULTA-DESIGN §36);
+  // the transfer card carries the "same idea, new disguise" framing.
   roleBanner: {
     debate: "You are the teacher",
     judging: "You are the teacher",
-    transfer: "Same idea, new disguise",
+    transfer: "You are the teacher",
     done: "Session over",
   },
 

@@ -10,6 +10,22 @@ function fileToBase64(file) {
   });
 }
 
+// The diagnosis agent sends images to Claude as image/jpeg, so normalize
+// whatever the picker returns (PNG, WEBP, HEIC-decoded) to a JPEG — and cap
+// the long edge so phone photos stay well under the backend JSON limit.
+async function toJpeg(file, maxDim = 1600) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close?.();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
+  if (!blob) throw new Error("jpeg encode failed");
+  return blob;
+}
+
 // The entry flow — one focused action: hand over the page.
 export default function UploadScreen({ stage, onStart }) {
   const [file, setFile] = useState(null);
@@ -18,10 +34,14 @@ export default function UploadScreen({ stage, onStart }) {
   const inputRef = useRef(null);
   const diagnosing = stage === "diagnosing";
 
-  function pick(f) {
+  async function pick(f) {
     if (!f) return;
-    setFile(f);
-    setPreviewUrl(URL.createObjectURL(f));
+    const jpeg = await toJpeg(f).catch(() => f); // undecodable? send as-is, quietly
+    setFile(jpeg);
+    setPreviewUrl((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return URL.createObjectURL(jpeg);
+    });
   }
 
   async function start() {
