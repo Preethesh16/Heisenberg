@@ -4,6 +4,8 @@
 
 **Reference inspiration:** [my AI Tutor](https://myaitutor.framer.website/) — use its warm, approachable, rounded, spacious learning-product qualities as a visual influence for the shell and entry flow. ULTA keeps its own exam-hall restraint, semantic belief colours, debate-first hierarchy, and original Chintu character; do not reproduce the reference site's layout or branding.
 
+**Entry is multimodal, not upload-gated.** The first screen offers voice, text, and page upload as peer entry points. A page sharpens evidence but is optional when the learner can state the question, answer, and reasoning aloud or in text. Topic-only requests stay in intake with an honest request for more reasoning; they never create a guessed misconception.
+
 ---
 
 # 33. DESIGN THESIS

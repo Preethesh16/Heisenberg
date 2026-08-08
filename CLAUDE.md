@@ -10,11 +10,11 @@ Repo context for Claude Code. Read this and `CONTRACTS.md` before doing anything
 
 A teach-the-AI learning platform for Indian competitive-exam aspirants. Every other education AI puts the machine in the teacher's chair. ULTA puts it in the student's chair.
 
-A learner uploads educational work. Claude Vision dynamically diagnoses the specific false belief behind the error and builds that session's concept package. That belief is then instantiated inside a second agent — **Chintu**, a cat-avatar AI study buddy — who confidently solves a *fresh* problem and makes the same class of mistake. The learner has to catch it and teach him why he's wrong. Chintu argues back using the misconception's own logic. A separate Judge decides whether the belief actually moved, not whether the right keyword appeared. A Verifier then re-tests the concept in a different disguise.
+A learner starts by speaking, typing, uploading educational work, or combining them. Claude diagnoses the specific false belief evidenced by that reasoning and builds the session's concept package. That belief is then instantiated inside a second agent — **Chintu**, a cat-avatar AI study buddy — who confidently solves a *fresh* problem and makes the same class of mistake. The learner has to catch it and teach him why he's wrong. Chintu argues back using the misconception's own logic. A separate Judge decides whether the belief actually moved, not whether the right keyword appeared. A Verifier then re-tests the concept in a different disguise.
 
 The loop: **DIAGNOSE → MIRROR → TEACH → CHALLENGE → JUDGE → TRANSFER**
 
-The three JEE Physics files remain an offline fixture story. Live sessions are not bounded to them: the knowledge, misconception, debate problem, repair criteria, and transfer contexts come from the uploaded work through Claude Vision.
+The three JEE Physics files remain an offline fixture story. Live sessions are not bounded to them: the knowledge, misconception, debate problem, repair criteria, and transfer contexts come from the learner's page and/or spoken or typed reasoning through Claude.
 
 ---
 

@@ -37,7 +37,7 @@ interface Turn {
 
 ### Agent 1 — Diagnosis
 
-`POST /api/diagnose` — body: `{ imageBase64: string, questionText?: string }`
+`POST /api/diagnose` — body: `{ imageBase64?: string, questionText?: string }`; at least one non-empty evidence source is required. `questionText` may contain a typed or STT-transcribed explanation of the learner's question, answer, and reasoning.
 
 ```json
 {
@@ -59,7 +59,7 @@ interface Turn {
 }
 ```
 
-Live diagnosis creates a validated concept package from the uploaded work. The server generates a deterministic `DYN-*` ID; it never accepts an ID supplied by image text or model output. A second independent Vision pass must accept every positive diagnosis. Correct, unrelated, illegible, low-confidence, or non-conceptual work returns `{ "diagnosable": false, "misconception_id": "UNKNOWN", "reason": "..." }` with no session ID. It must never silently become the friction fixture.
+Live diagnosis creates a validated concept package from uploaded work, spoken/typed reasoning, or both. Text-only evidence must describe an attempted rule, answer, or reasoning step; merely naming a topic is insufficient. The server generates a deterministic `DYN-*` ID and never accepts an ID supplied by learner content or model output. A second independent evidence-grounded pass must accept every positive diagnosis. Correct, unrelated, illegible, vague, low-confidence, or non-conceptual input returns `{ "diagnosable": false, "misconception_id": "UNKNOWN", "reason": "..." }` with no session ID. It must never silently become the friction fixture.
 
 ### Agent 2 — Chintu
 
