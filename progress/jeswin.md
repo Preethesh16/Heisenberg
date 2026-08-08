@@ -1,5 +1,25 @@
 # Progress — Jeswin (`feat/core`)
 
+### T+3:30 · feat/core · (this commit)
+**Did:** Fixed all defects from the Codex deterministic audit. 43-check verification suite passes, plus two live smoke tests (blank-STT fallback, Maya through the new deadline wrapper).
+**Files:** server/orchestrator.js, server/api/routes.js, server/index.js, server/voice/sarvam.js, server/voice/maya.js, server/lib/http.js (new), fixtures/chintu-opener.json, fixtures/chintu-yield.json, fixtures/stt-1..3.json (new), fixtures/stt.json (removed), server/.env.example
+**Decided:**
+- **P0 session isolation:** `getSession` no longer falls back to the latest session. Routes require the exact `sessionId`; missing → 400, unknown → 404, never an implicit session. Frontend already sends the backend id (verified in Preethesh's hook), so no frontend change needed.
+- **P0 legal stages:** chintu/judge only in `debate`; a debate Judge pass parks the session in `judging` until `/verify` installs the transfer problem (never `transfer` without one); transfer judge only with a problem installed; failed transfer stays in `transfer`; repeat `/verify` is idempotent (returns the same problem, never replaces it); out-of-order calls get 409 JSON without mutating state.
+- **P0 turns-once:** `addStudentTurnOnce(session, text, source)` — parallel /chintu + /judge write the student turn exactly once; a transfer answer via /judge alone is recorded; identical repeats from the same route are genuine turns and kept.
+- **P0 fail-closed judge:** in real mode a missing/throwing/malformed judge returns `passed:false` with current scores and never advances the stage. The fail→pass fixture arc now exists only under `USE_FIXTURES=true` (and Deepthi's judge also fails closed internally — two layers).
+- **P0 JSON errors:** final error middleware — malformed JSON, oversized payloads, multer errors, and unexpected throws all return `{error, fallback:true}` JSON. No HTML error pages, stacks, provider bodies, or paths in responses.
+- **P1 validation:** diagnose (base64 string + 20MB bound), chintu/judge (sessionId + text rules, empty text only for the opener), stt (audio/* MIME + size), tts (non-empty ≤2000 chars, unknown emotion normalizes to untagged).
+- **P1 timeouts:** `SARVAM_TIMEOUT_MS` (15s) / `MAYA_TIMEOUT_MS` (30s) with AbortController and at most one bounded retry on 429/5xx; aborts flow into the existing quiet fallbacks.
+- **P1 Maya validation:** voice locked to Ananya|Arjun (unknown → Arjun + loud warning; obsolete MAYA_VOICE_ID detected); response validated before WAV-wrap (JSON/HTML bodies rejected, RIFF passthrough, odd PCM trimmed); `pcmToWavDataUrl` exported and unit-tested.
+- **P1 Sarvam config:** model/mode behind env. Default stays live-verified `saarika:v2.5` for the demo; `saaras:v3` + `SARVAM_STT_MODE` supported for the migration after a live check. Blank transcript (HTTP 200, empty text) now returns `{text:"", fallback:true}` so the mic reveals the text input. Upload filename extension follows the real MIME type.
+- **P1 fixture story:** per-session sequences — confident opener → incomplete answer → judge fail → argue back → full mechanism → judge pass → transfer answer → pass. STT sequence is per-session when sessionId is provided; otherwise module-scoped and reset on /diagnose (STT has no sessionId in the frozen contract — flag at sync if we want one).
+- **P1 agent logging:** dynamic-import failures now log once per failure kind (name + error type) instead of silently looking like fixture mode.
+- **P2:** CORS restricted to `CORS_ORIGIN` (localhost:5173 defaults); sessions expire after `SESSION_TTL_MINUTES` (60) of idleness — active sessions refresh on every touch.
+**Blocked:** No.
+**FLAG AT SYNC (contract-adjacent, all additive):** (1) sessionId in diagnose response + strict session requirement; (2) transfer answers reuse /api/judge; (3) new 400/404/409 JSON error shapes `{error, fallback:true}`; (4) optional sessionId field on /api/stt would make fixture sequencing fully per-session.
+**Next:** restart demo server on :3001 with this code; final browser rehearsals.
+
 ### T+2:00 · feat/core · b727ad9
 **Did:** All three providers verified LIVE with venue keys. Claude: 200 on the agents' default model. Sarvam STT: real transcription round-trip through `/api/stt` (auth, endpoint, field names all correct as written). Maya TTS: was completely broken — researched endpoint didn't exist — rewrote wrapper against the real docs (docs.mayaresearch.ai) and got 8.5s of Chintu audio through `/api/tts`.
 **Files:** server/voice/maya.js, server/.env.example
