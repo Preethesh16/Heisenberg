@@ -8,12 +8,16 @@ export const copy = {
   upload: {
     heading: "Where should we begin?",
     sub: "Speak, type, or show your work. Describe what you tried—not only the topic—so Chintu can pick up the exact idea to debate.",
+    chatIntro: "Hey! Tell me the question, what answer you got, and why you thought it worked. You can speak, type, or attach your page.",
+    attach: "Attach your working",
+    attachHint: "Optional photo · sharper diagnosis",
     questionLabel: "Your question and reasoning",
     questionPlaceholder: "What was the question, what answer did you get, and why?",
     voiceHeading: "Start by talking",
     voiceSub: "Tell Chintu the question, your answer, and how you got there. You can add a page too, but it is no longer required.",
     cta: "Let Chintu inspect it",
     voiceCta: "Start from my explanation",
+    photoCta: "Start with this page",
     diagnosing: "Reading every step…",
   },
 

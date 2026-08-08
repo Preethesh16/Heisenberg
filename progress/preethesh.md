@@ -1,5 +1,10 @@
 # Progress — Preethesh · feat/web
 
+### 2026-08-08 · Chintu intake chat sidebar
+**Did:** Rebuilt entry as a real side chat rather than a voice control embedded in an upload form. Chintu opens the thread; voice and text share a bottom composer and start diagnosis immediately; a page is an optional chat attachment with its own page-only start action. The sidebar preserves submitted text and diagnosis/error state as conversation bubbles.
+**Tests:** Production build green; 10/10 Playwright runs across desktop/mobile cover sidebar presence, text-only start, voice-only start with stream cleanup, page-only start, session voice, and the full debate → transfer → defeat flow.
+**Blocked:** No.
+
 ### 2026-08-08 · start-anywhere workflow correction
 **Did:** Replaced the cosmetic voice-above-upload treatment with true peer entry paths. Voice or typed reasoning now enables session start without a photo; an uploaded page is an optional evidence enhancer. Updated entry hierarchy and failure copy to explain the evidence requirement honestly.
 **Tests:** Production build green; 8/8 Playwright runs pass across desktop and mobile, including no-photo typed start and one-click voice lifecycle.

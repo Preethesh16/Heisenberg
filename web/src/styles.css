@@ -175,6 +175,47 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .upload-screen__cta:hover:not(:disabled), .defeat-screen__again:hover { transform:translateY(-2px); box-shadow:0 17px 32px rgba(88,68,190,.3); }
 .upload-screen__cta:disabled { opacity:.46; cursor:default; box-shadow:none; }
 
+.intake-sidebar {
+  position:relative;
+  overflow:hidden;
+  min-height:650px;
+  max-height:calc(100vh - 64px);
+  display:flex;
+  flex-direction:column;
+  background:rgba(255,255,255,.91);
+  border:1px solid rgba(255,255,255,.97);
+  border-radius:30px;
+  box-shadow:var(--shadow-xl);
+  backdrop-filter:blur(18px);
+}
+.intake-sidebar__header { min-height:82px; display:grid; grid-template-columns:58px 1fr auto; align-items:center; gap:12px; padding:12px 17px; background:linear-gradient(135deg,#eeeaff,#faf8ff); border-bottom:1px solid var(--line); }
+.intake-sidebar__avatar { width:54px; height:54px; display:grid; place-items:center; overflow:hidden; background:#fff; border:1px solid rgba(103,84,217,.14); border-radius:18px; }
+.intake-sidebar__avatar .chintu-avatar { transform:scale(.72); }
+.intake-sidebar__header div:nth-child(2) { min-width:0; display:flex; flex-direction:column; }
+.intake-sidebar__header span { color:var(--ink-soft); font-size:10px; font-weight:760; letter-spacing:.08em; text-transform:uppercase; }
+.intake-sidebar__header strong { overflow:hidden; color:var(--ink); font-size:17px; text-overflow:ellipsis; white-space:nowrap; }
+.intake-sidebar__header > i { width:9px; height:9px; border-radius:50%; background:#6ea64a; box-shadow:0 0 0 5px rgba(110,166,74,.12); }
+.intake-sidebar__messages { min-height:210px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:13px; padding:20px 18px; scrollbar-color:#cfc7e6 transparent; }
+.intake-message { max-width:86%; display:flex; flex-direction:column; gap:4px; }
+.intake-message > span { padding:0 5px; color:#8c849a; font-size:9px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.intake-message p { margin:0; padding:12px 14px; border-radius:17px; font-size:13px; line-height:1.5; }
+.intake-message--chintu { align-self:flex-start; }
+.intake-message--chintu p { color:#342c50; background:#eeeaff; border-bottom-left-radius:5px; }
+.intake-message--student { align-self:flex-end; align-items:flex-end; }
+.intake-message--student p { color:#fff; background:linear-gradient(135deg,#312b43,#201b2f); border-bottom-right-radius:5px; }
+.intake-message--issue p { color:#7e3846; background:#fff0f3; border:1px solid #f4ccd5; }
+.intake-message--thinking p { animation:chat-thinking 1.35s ease-in-out infinite alternate; }
+.intake-sidebar__attachment { margin:0 18px 12px; min-height:65px; display:grid; grid-template-columns:48px 1fr; align-items:center; gap:12px; overflow:hidden; padding:8px; color:var(--ink); text-align:left; background:#faf8ff; border:1px dashed rgba(103,84,217,.32); border-radius:16px; }
+.intake-sidebar__attachment:hover:not(:disabled) { border-color:var(--violet); background:#f6f2ff; }
+.intake-sidebar__attachment > span { width:44px; height:44px; display:grid; place-items:center; color:#fff; background:var(--violet); border-radius:12px; font-size:22px; }
+.intake-sidebar__attachment img { width:48px; height:48px; object-fit:cover; border-radius:11px; }
+.intake-sidebar__attachment div { min-width:0; display:flex; flex-direction:column; }
+.intake-sidebar__attachment strong { font-size:12px; }
+.intake-sidebar__attachment small { color:var(--ink-soft); font-size:10px; }
+.intake-sidebar__composer { padding:0 18px 17px; }
+.intake-sidebar__composer .mic-control { padding:11px; background:#fff; border:1px solid var(--line); box-shadow:var(--shadow-sm); }
+.intake-sidebar > .upload-screen__cta { margin:0 18px 18px; }
+
 /* Session */
 
 .session-screen {
@@ -348,12 +389,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 @keyframes turn-in { from { opacity:0; transform:translateY(7px) scale(.99) } to { opacity:1; transform:none } }
 @keyframes mic-pulse { 50% { box-shadow:0 0 0 8px rgba(255,255,255,.12) } }
 @keyframes wave { from { transform:scaleY(.55) } to { transform:scaleY(1.2) } }
+@keyframes chat-thinking { from { opacity:.62 } to { opacity:1 } }
 
 @media (max-width: 820px) {
   .upload-screen { grid-template-columns:1fr; padding:38px 22px 54px; gap:22px; }
   .upload-screen__intro { padding:0 0 126px; }
   .upload-screen__promise { max-width:650px; }
   .upload-screen__mascot { right:4%; bottom:-90px; transform:scale(.76); transform-origin:bottom right; }
+  .intake-sidebar { min-height:620px; max-height:none; }
   .session-screen { padding:14px; }
   .session-screen__main { grid-template-columns:230px minmax(0,1fr); }
   .chintu-panel { min-height:390px; padding-inline:12px; }
@@ -369,6 +412,10 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   .upload-screen__promise { font-size:14px; }
   .upload-screen__mascot { display:none; }
   .upload-screen__card { padding:22px 18px; border-radius:25px; }
+  .intake-sidebar { min-height:610px; margin-top:18px; border-radius:25px; }
+  .intake-sidebar__messages { min-height:190px; }
+  .intake-sidebar__composer { padding-inline:12px; }
+  .intake-sidebar__attachment { margin-inline:12px; }
   .role-banner { grid-template-columns:auto 1fr auto; padding-left:13px; }
   .role-banner__role { justify-self:center; padding:7px 11px; font-size:9px; }
   .role-banner__timer { min-width:auto; padding:6px; }

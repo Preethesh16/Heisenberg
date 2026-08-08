@@ -34,7 +34,6 @@ export default function UploadScreen({ stage, issue, onStart }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [questionText, setQuestionText] = useState("");
   const [lang, setLang] = useState("en");
-  const [voiceIssue, setVoiceIssue] = useState(false);
   const inputRef = useRef(null);
   const previewRef = useRef(null);
   const diagnosing = stage === "diagnosing";
@@ -55,11 +54,13 @@ export default function UploadScreen({ stage, issue, onStart }) {
     });
   }
 
-  async function start() {
-    if ((!file && !questionText.trim()) || diagnosing) return;
+  async function start(textOverride = questionText) {
+    const learnerText = String(textOverride || "").trim();
+    if ((!file && !learnerText) || diagnosing) return;
+    if (learnerText) setQuestionText(learnerText);
     const imageBase64 = file ? await fileToBase64(file) : undefined;
     const handwritingUrl = file ? `data:${file.type || "image/jpeg"};base64,${imageBase64}` : null;
-    onStart({ imageBase64, questionText: questionText || undefined, handwritingUrl });
+    onStart({ imageBase64, questionText: learnerText || undefined, handwritingUrl });
   }
 
   return (
@@ -78,41 +79,52 @@ export default function UploadScreen({ stage, issue, onStart }) {
         <div className="upload-screen__mascot"><Chintu emotion="thinking" beliefStrength={0.86} size={210} /></div>
       </section>
 
-      <section className="upload-screen__card">
-        <span className="upload-screen__step">01 · Start anywhere</span>
-        <h2>{copy.upload.heading}</h2>
-        <p className="upload-screen__sub">{copy.upload.sub}</p>
-
-        {issue && <p className="upload-screen__issue" role="status">{issue}</p>}
-
-        <div className="upload-screen__voice-start">
+      <aside className="intake-sidebar" aria-label="Chat with Chintu">
+        <header className="intake-sidebar__header">
+          <div className="intake-sidebar__avatar"><Chintu emotion={diagnosing ? "thinking" : "listening"} beliefStrength={0.86} size={76} /></div>
           <div>
-            <strong>{copy.upload.voiceHeading}</strong>
-            <span>{copy.upload.voiceSub}</span>
+            <span>Chintu · study buddy</span>
+            <strong>{copy.upload.heading}</strong>
           </div>
-          <MicControl
-            sessionId={null}
-            lang={lang}
-            onLangChange={setLang}
-            onStudentText={setQuestionText}
-            sttFallbackActive={voiceIssue}
-            onSttFallback={() => setVoiceIssue(true)}
-            disabled={diagnosing}
-          />
-        </div>
+          <i aria-hidden="true" />
+        </header>
 
-        <div className="upload-screen__or"><span>add a page for sharper diagnosis</span></div>
+        <div className="intake-sidebar__messages" aria-live="polite">
+          <div className="intake-message intake-message--chintu">
+            <span>Chintu</span>
+            <p>{copy.upload.chatIntro}</p>
+          </div>
+          {questionText && (
+            <div className="intake-message intake-message--student">
+              <span>You</span>
+              <p>{questionText}</p>
+            </div>
+          )}
+          {issue && (
+            <div className="intake-message intake-message--issue" role="status">
+              <span>Try again</span>
+              <p>{issue}</p>
+            </div>
+          )}
+          {diagnosing && (
+            <div className="intake-message intake-message--chintu intake-message--thinking">
+              <span>Chintu</span>
+              <p>Let me find the exact idea behind that…</p>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"
-          className={`upload-screen__drop${previewUrl ? " upload-screen__drop--filled" : ""}`}
+          className={`intake-sidebar__attachment${previewUrl ? " intake-sidebar__attachment--filled" : ""}`}
           onClick={() => inputRef.current?.click()}
+          disabled={diagnosing}
         >
-          {previewUrl ? (
-            <img src={previewUrl} alt="Your solution" />
-          ) : (
-            <span>Tap to choose a photo</span>
-          )}
+          {previewUrl ? <img src={previewUrl} alt="Attached solution" /> : <span aria-hidden="true">+</span>}
+          <div>
+            <strong>{previewUrl ? "Page attached" : copy.upload.attach}</strong>
+            <small>{previewUrl ? "Tap to replace it" : copy.upload.attachHint}</small>
+          </div>
         </button>
         <input
           ref={inputRef}
@@ -122,25 +134,26 @@ export default function UploadScreen({ stage, issue, onStart }) {
           onChange={(e) => pick(e.target.files?.[0])}
         />
 
-        <label className="upload-screen__question">
-          {copy.upload.questionLabel}
-          <input
-            type="text"
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            placeholder={copy.upload.questionPlaceholder}
+        <div className="intake-sidebar__composer">
+          <MicControl
+            sessionId={null}
+            lang={lang}
+            onLangChange={setLang}
+            onStudentText={(text) => start(text)}
+            sttFallbackActive
+            onSttFallback={() => {}}
+            disabled={diagnosing}
+            textPlaceholder={copy.upload.questionPlaceholder}
+            textSend="Start"
           />
-        </label>
+        </div>
 
-        <button
-          type="button"
-          className="upload-screen__cta"
-          onClick={start}
-          disabled={(!file && !questionText.trim()) || diagnosing}
-        >
-          {diagnosing ? copy.upload.diagnosing : file ? copy.upload.cta : copy.upload.voiceCta}
-        </button>
-      </section>
+        {file && !questionText && (
+          <button type="button" className="upload-screen__cta" onClick={() => start("")} disabled={diagnosing}>
+            {diagnosing ? copy.upload.diagnosing : copy.upload.photoCta}
+          </button>
+        )}
+      </aside>
     </main>
   );
 }

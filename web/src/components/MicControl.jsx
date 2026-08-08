@@ -4,7 +4,17 @@ import { speechToText } from "../api/client";
 
 // One-click turn recording: click once to listen, click again to transcribe
 // and send. The component owns every MediaRecorder/MediaStream cleanup path.
-export default function MicControl({ sessionId, lang, onLangChange, onStudentText, sttFallbackActive, onSttFallback, disabled }) {
+export default function MicControl({
+  sessionId,
+  lang,
+  onLangChange,
+  onStudentText,
+  sttFallbackActive,
+  onSttFallback,
+  disabled,
+  textPlaceholder = copy.mic.textPlaceholder,
+  textSend = copy.mic.textSend,
+}) {
   const [status, setStatus] = useState("idle");
   const [text, setText] = useState("");
   const [showText, setShowText] = useState(sttFallbackActive);
@@ -207,10 +217,10 @@ export default function MicControl({ sessionId, lang, onLangChange, onStudentTex
             type="text"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder={copy.mic.textPlaceholder}
+            placeholder={textPlaceholder}
             disabled={disabled || status !== "idle"}
           />
-          <button type="submit" disabled={disabled || status !== "idle" || !text.trim()}>{copy.mic.textSend}</button>
+          <button type="submit" disabled={disabled || status !== "idle" || !text.trim()}>{textSend}</button>
         </form>
       )}
     </div>

@@ -8,12 +8,15 @@ const wrongFriction = path.resolve(here, "../../data/test-images/wrong-friction.
 async function openSession(page) {
   await page.goto("/");
   await page.setInputFiles('input[type="file"]', wrongFriction);
-  await page.getByRole("button", { name: "Let Chintu inspect it" }).click();
+  await page.getByRole("button", { name: "Start with this page" }).click();
   await expect(page.locator(".session-screen")).toBeVisible();
   await expect(page.locator(".transcript__turn--chintu:not(.transcript__thinking)")).toBeVisible();
 }
 
 test("entry and session retain the product hierarchy", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("complementary", { name: "Chat with Chintu" })).toBeVisible();
+  await expect(page.locator(".intake-message--chintu")).toContainText("Tell me the question");
   await openSession(page);
   await expect(page.getByText("You are the teacher")).toBeVisible();
   await expect(page.locator(".misconception-card__id")).toHaveText("M-FRIC-04");
@@ -24,13 +27,39 @@ test("entry and session retain the product hierarchy", async ({ page }) => {
 
 test("typed reasoning can start without a photo", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Type instead" }).click();
-  await page.locator(".upload-screen__voice-start .mic-control__fallback input")
+  await page.locator(".intake-sidebar .mic-control__fallback input")
     .fill("I used b over a for the product of roots because b is the coefficient beside x.");
-  await page.locator(".upload-screen__voice-start .mic-control__fallback button").click();
-  await expect(page.getByLabel("Your question and reasoning")).toHaveValue(/product of roots/);
-  await page.getByRole("button", { name: "Start from my explanation" }).click();
+  await page.locator(".intake-sidebar .mic-control__fallback button").click();
   await expect(page.locator(".session-screen")).toBeVisible();
+});
+
+test("sidebar voice can start without a photo and releases the stream", async ({ page }) => {
+  await page.addInitScript(() => {
+    const track = { stopped: false, stop() { this.stopped = true; } };
+    window.__ultaIntakeTrack = track;
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: async () => ({ getTracks: () => [track] }) },
+    });
+    class FakeMediaRecorder {
+      static isTypeSupported() { return true; }
+      constructor(_stream, options = {}) { this.mimeType = options.mimeType || "audio/webm"; this.state = "inactive"; }
+      start() { this.state = "recording"; }
+      stop() {
+        this.state = "inactive";
+        this.ondataavailable?.({ data: new Blob(["voice"], { type: this.mimeType }) });
+        setTimeout(() => this.onstop?.(), 0);
+      }
+    }
+    Object.defineProperty(window, "MediaRecorder", { configurable: true, value: FakeMediaRecorder });
+  });
+  await page.goto("/");
+  const button = page.locator(".intake-sidebar .mic-control__button");
+  await button.click();
+  await expect(page.locator(".intake-sidebar .mic-control")).toHaveClass(/mic-control--recording/);
+  await button.click();
+  await expect(page.locator(".session-screen")).toBeVisible();
+  expect(await page.evaluate(() => window.__ultaIntakeTrack.stopped)).toBe(true);
 });
 
 test("one-click voice creates exactly one turn and releases the stream", async ({ page }) => {

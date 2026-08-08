@@ -6,6 +6,8 @@
 
 **Entry is multimodal, not upload-gated.** The first screen offers voice, text, and page upload as peer entry points. A page sharpens evidence but is optional when the learner can state the question, answer, and reasoning aloud or in text. Topic-only requests stay in intake with an honest request for more reasoning; they never create a guessed misconception.
 
+The entry interaction is a persistent Chintu chat sidebar: Chintu opens with one short intake question, the learner replies in a text/voice composer, and page upload appears as an attachment inside that chat. Sending a message starts diagnosis immediately. Do not render voice as a control inside an upload form.
+
 ---
 
 # 33. DESIGN THESIS
