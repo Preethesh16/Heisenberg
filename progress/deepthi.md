@@ -1,5 +1,10 @@
 # Progress — Deepthi · feat/agents
 
+### 2026-08-08 · multimodal diagnosis entry
+**Did:** Generalized Diagnosis and its independent audit from Vision-only input to evidence from an uploaded page, spoken/typed reasoning, or both. Text-only input must contain an attempted answer, rule, or reasoning step; topic-only requests fail closed instead of generating a guessed misconception.
+**Tests:** 61/61 deterministic agent checks; live text-only algebra reasoning produced an independently accepted dynamic diagnosis.
+**Blocked:** No.
+
 ### 2026-08-08 · post-hackathon dynamic-learning audit
 **Did:** Replaced the live three-ID classifier with subject-agnostic Vision diagnosis. A positive diagnosis now carries its own topic, concept, misconception, evidence, correct model, common argument, repair criteria, debate problem, and transfer contexts. A second independent Sonnet image audit must confirm that the candidate is both wrong and grounded in visible work before a session is created. Correct, blurry, unrelated, malformed, unsupported, and image-prompt-injection cases fail closed to `UNKNOWN` with no session. Chintu, Judge, and Verifier resolve the validated dynamic package instead of silently falling back to friction.
 **Tests:** 60/60 deterministic agent checks; isolation suite green; live friction/algebra/chemistry/correct/blur/unrelated/injection regressions; expanded live Chintu adversarial suite 9/9 with eventual yield preserved.

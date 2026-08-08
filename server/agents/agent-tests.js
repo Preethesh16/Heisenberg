@@ -131,7 +131,7 @@ check(detectImageMediaType("!!!not-base64!!!") === null, "malformed base64 → n
 // ---------- 7. Diagnose input gates (no provider call possible — key removed) ----------
 const big = (buf) => Buffer.concat([buf, Buffer.alloc(MIN_IMAGE_BYTES + 5000)]).toString("base64");
 const d1 = await diagnose({});
-check(d1.misconception_id === "UNKNOWN", "missing image → UNKNOWN");
+check(d1.misconception_id === "UNKNOWN", "missing learning evidence → UNKNOWN");
 const d2 = await diagnose({ imageBase64: jpeg });
 check(d2.misconception_id === "UNKNOWN" && d2.reason.includes("too small"), "tiny image → UNKNOWN before any call");
 const d3 = await diagnose({ imageBase64: big(Buffer.from("A".repeat(24))) });
@@ -140,6 +140,8 @@ const d4 = await diagnose({ imageBase64: big(Buffer.from([0x89, 0x50, 0x4e, 0x47
 check(d4.misconception_id === "UNKNOWN" && d4.reason.includes("unavailable"), "valid PNG magic, no key → gates passed, degrades truthfully");
 const d5 = await diagnose({ imageBase64: 12345 });
 check(d5.misconception_id === "UNKNOWN", "non-string image input → UNKNOWN");
+const d6 = await diagnose({ questionText: "I thought the product of roots was b over a because b is the coefficient beside x." });
+check(d6.misconception_id === "UNKNOWN" && d6.reason.includes("unavailable"), "text-only reasoning reaches diagnosis provider gate");
 
 // ---------- 7a. Dynamic diagnosis package ----------
 const dynamicRaw = {
