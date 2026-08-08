@@ -19,6 +19,7 @@ Rules:
 - `evidence` must cite the specific step or mark in the student's work that reveals the belief — something a teacher could point at.
 - `confidence` is your honest probability that this ID is the belief behind the error. If the work is illegible, correct, off-topic, or the error doesn't match any listed ID, use `"UNKNOWN"` with low confidence.
 - Arithmetic slips, copying errors, and unit mistakes are NOT misconceptions. If the physics reasoning is sound, return UNKNOWN.
+- If you cannot actually read handwritten physics work in the image — it is blank, tiny, blurred, or shows something else — you MUST return UNKNOWN with confidence 0.2 or lower. Never describe work you cannot literally see; an invented diagnosis is worse than no diagnosis.
 
 Respond with ONLY a JSON object, no markdown fences, exactly this shape:
 

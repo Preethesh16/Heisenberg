@@ -49,6 +49,13 @@
 **Blocked:** Running it needs the key.
 **Next:** Everything remaining needs manual input: API key, real handwritten photos, live run.
 
+### T+3:45 · feat/agents · live-test round
+**Did:** API keys landed in server/.env (normalized CRLF; .env.txt added to server/.gitignore so secrets can't be committed — Jeswin note: one line added to your .gitignore). Ran everything live: (1) adversarial harness — first run 6/6 held but direct-ask made Chintu paraphrase the correct rule "to write in your notes"; tightened prompts/chintu.md (his rule IS his belief, never reconstruct the textbook's) and the leak markers; re-run 6/6 held cleanly, he now restates the false belief instead. (2) Full loop live through the server with USE_FIXTURES=false: Chintu argues M-NEWT-07 confidently (belief 0.95), Judge fails "because newton third law" with precise missing-reasoning text, passes a genuine mechanism explanation (belief 0.95 → 0.2, scores 95/90/92), Verifier produces a fresh Earth-apple transfer problem. (3) Found a real bug: on the 160-byte stub image the vision model hallucinated handwriting ("M > m") and confidently diagnosed M-NEWT-07. Fixed twice over: MIN_IMAGE_BYTES code gate (10KB — smaller than any real photo) returns UNKNOWN without an API call, plus a prompt rule "never describe work you cannot literally see". Verified: stub now → UNKNOWN → route falls back to demo default M-FRIC-04 per the failure table.
+**Files:** prompts/chintu.md, prompts/diagnose.md, server/agents/diagnose.js, server/agents/adversarial-test.js, server/.gitignore (one line, flagged)
+**Decided:** Blurry/blank images are gated in code, not just prompt — a hallucinated confident diagnosis is the worst possible demo failure because it poisons every later stage. The belt-and-braces pattern (prompt rule + deterministic gate) is now standard for anything demo-critical.
+**Blocked:** Only the real handwritten photo test — needs a human with pen, paper, and a phone camera.
+**Next:** Photo test when someone writes one; otherwise agents are done.
+
 ---
 
 ## 90-second pitch script (Deepthi delivers)

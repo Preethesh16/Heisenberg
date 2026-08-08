@@ -6,6 +6,10 @@ import { callClaude, parseJson } from "./claude.js";
 import { loadMisconceptions, loadPrompt } from "./misconceptions.js";
 
 export const MIN_CONFIDENCE = 0.6;
+// A photo of a handwritten page is far bigger than this; anything smaller is a
+// stub, a thumbnail, or corruption. Gate in code — on a near-blank image the
+// vision model hallucinates handwriting rather than admitting it sees nothing.
+export const MIN_IMAGE_BYTES = 10_000;
 export { loadMisconceptions };
 
 function buildPrompt(byId, questionText) {
@@ -28,6 +32,11 @@ const UNKNOWN = {
 
 export async function diagnose({ imageBase64, questionText } = {}) {
   const byId = loadMisconceptions();
+
+  const imageBytes = Math.floor(String(imageBase64 || "").length * 0.75);
+  if (imageBytes < MIN_IMAGE_BYTES) {
+    return { ...UNKNOWN, evidence: "image too small to contain a handwritten solution" };
+  }
 
   let raw;
   try {
