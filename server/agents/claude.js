@@ -3,24 +3,38 @@
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.ULTA_MODEL || "claude-sonnet-4-5";
+// A stalled provider must never freeze a debate turn — abort and let each
+// agent's fallback run. 45s covers vision calls with margin.
+const TIMEOUT_MS = Number(process.env.ULTA_TIMEOUT_MS) > 0 ? Number(process.env.ULTA_TIMEOUT_MS) : 45_000;
 
 export async function callClaude({ system, messages, maxTokens = 1024 }) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error(`Anthropic request timed out after ${TIMEOUT_MS}ms`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`Anthropic API ${res.status}: ${body.slice(0, 200)}`);
+    throw new Error(`Anthropic API ${res.status}: ${body.slice(0, 120)}`);
   }
 
   const data = await res.json();

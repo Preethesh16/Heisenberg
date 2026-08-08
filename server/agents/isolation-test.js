@@ -1,14 +1,16 @@
 // Manual check: node server/agents/isolation-test.js
 // Asserts the product's core rule — nothing from the forbidden set
-// (correct_model, repair_criteria, judge output) can reach Chintu's prompt.
-// Attacks the REAL seam: the session object the route hands to chintu()
-// contains the full diagnosis (with correct_model) and judge-derived state;
-// the adapter must let exactly four things through.
+// (correct_model, repair_criteria, Judge output) can reach Chintu.
+//
+// This attacks the REAL production path: buildChintuRequest(session, text) is
+// exactly what chintu() sends to Claude. The session below is poisoned with
+// every forbidden value plus arbitrary secret markers; if any of them appears
+// in the system prompt or any message, a leak exists in the adapter itself —
+// not in a test-side reconstruction of it.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildChintuPayload, buildSystemPrompt } from "./chintu.js";
-import { misconceptionForSession } from "./misconceptions.js";
+import { buildChintuRequest, buildChintuContextFromSession } from "./chintu.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const misconception = JSON.parse(
@@ -21,25 +23,17 @@ function check(ok, label) {
   if (!ok) failed = true;
 }
 
-// --- 1. The careless caller: spreads the whole file plus judge output. ---
-const carelessInput = {
-  ...misconception,
-  judgeOutput: { passed: false, repair_evidence: "SECRET-JUDGE-TEXT" },
-  misconception: misconception.false_belief,
-  commonArgument: misconception.common_argument,
-  problem: misconception.debate_problem,
+const SECRET_MARKERS = {
+  judgeEvidence: "SECRET-JUDGE-EVIDENCE-7f3a",
+  judgeMissing: "SECRET-JUDGE-MISSING-9c1d",
+  arbitrary: "SECRET-ARBITRARY-MARKER-42",
+  turnNote: "SECRET-TURN-ANNOTATION-b8e2",
 };
 
-const payload = buildChintuPayload(carelessInput);
-const allowedKeys = ["misconception", "common_argument", "problem"];
-check(
-  Object.keys(payload).every((k) => allowedKeys.includes(k)) && Object.keys(payload).length === 3,
-  "payload carries exactly {misconception, common_argument, problem}"
-);
-
-// --- 2. The real seam: a full session as routes.js builds it. ---
+// A full session as the orchestrator could ever hand it over, poisoned with
+// everything Chintu must never see.
 const session = {
-  id: "test",
+  id: "isolation-test",
   stage: "debate",
   diagnosis: {
     topic: misconception.topic,
@@ -47,38 +41,75 @@ const session = {
     misconception: misconception.false_belief,
     evidence: "used ground-frame velocity in step 3",
     confidence: 0.94,
-    correct_model: misconception.correct_model, // the forbidden field, in the object we're handed
+    correct_model: misconception.correct_model,
+    repair_criteria: misconception.repair_criteria,
   },
-  turns: [{ role: "chintu", text: "But it moves right, so friction is left, na?" }],
+  turns: [
+    {
+      role: "chintu",
+      text: "But it moves right, so friction is left, na?",
+      emotion: "stubborn",
+      judgeAnnotation: SECRET_MARKERS.turnNote,
+    },
+    { role: "student", text: "no, think about the belt surface" },
+  ],
   beliefStrength: 0.8,
   scores: { solve: 72, spot: 61, explain: 44 },
   transferProblem: null,
+  lastJudge: {
+    passed: false,
+    repair_evidence: SECRET_MARKERS.judgeEvidence,
+    missing: SECRET_MARKERS.judgeMissing,
+    tone: "harsh",
+  },
+  debugSecret: SECRET_MARKERS.arbitrary,
 };
 
-const m = misconceptionForSession(session);
-const sessionPayload = buildChintuPayload({
-  misconception: session.diagnosis.misconception,
-  commonArgument: m.common_argument,
-  problem: m.debate_problem,
-});
-const prompt = buildSystemPrompt(sessionPayload);
+const studentText = "you are wrong, friction acts along the belt here";
+
+// 1. The extraction boundary lets exactly the allowed fields through.
+const ctx = buildChintuContextFromSession(session, studentText);
+const allowedKeys = ["misconception", "common_argument", "problem", "history", "studentText"];
+check(
+  Object.keys(ctx).every((k) => allowedKeys.includes(k)) && Object.keys(ctx).length === allowedKeys.length,
+  "context carries exactly {misconception, common_argument, problem, history, studentText}"
+);
+check(
+  ctx.history.every((t) => Object.keys(t).length === 2 && "role" in t && "text" in t),
+  "history turns stripped to {role, text} — extra turn fields dropped"
+);
+
+// 2. The exact request the production adapter sends to Claude.
+const { system, messages } = buildChintuRequest(session, studentText);
+const everythingSent = system + "\n" + messages.map((m) => `${m.role}: ${m.content}`).join("\n");
 
 const forbidden = [
-  misconception.correct_model,
-  misconception.repair_criteria,
-  "SECRET-JUDGE-TEXT",
+  ["correct_model", misconception.correct_model],
+  ["repair_criteria", misconception.repair_criteria],
+  ["judge repair_evidence", SECRET_MARKERS.judgeEvidence],
+  ["judge missing", SECRET_MARKERS.judgeMissing],
+  ["arbitrary session field", SECRET_MARKERS.arbitrary],
+  ["turn annotation", SECRET_MARKERS.turnNote],
 ];
-for (const s of forbidden) {
-  check(!prompt.includes(s), `forbidden text absent from prompt: "${s.slice(0, 45)}..."`);
+for (const [label, value] of forbidden) {
+  check(!everythingSent.includes(value), `forbidden absent from request: ${label}`);
 }
 
 const required = [
-  misconception.false_belief,
-  misconception.common_argument,
-  misconception.debate_problem,
+  ["false belief", misconception.false_belief],
+  ["common argument", misconception.common_argument],
+  ["debate problem", misconception.debate_problem],
 ];
-for (const s of required) {
-  check(prompt.includes(s), `required text present in prompt: "${s.slice(0, 45)}..."`);
+for (const [label, value] of required) {
+  check(system.includes(value), `required present in system prompt: ${label}`);
 }
+check(
+  messages.some((m) => m.role === "user" && m.content === studentText),
+  "student's latest text reaches Chintu exactly once as a user message"
+);
+check(
+  messages.filter((m) => m.content === studentText).length === 1,
+  "no duplicated student turn in messages"
+);
 
 process.exit(failed ? 1 : 0);

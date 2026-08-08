@@ -63,6 +63,25 @@
 **Blocked:** No.
 **Next:** Real phone photo when available; demo rehearsal on the venue laptop.
 
+### T+4:45 · feat/agents · codex audit fixes
+**Did:** Fixed every verified audit finding, all inside my folders.
+- P0 Verifier fallbacks: authored real fallback transfer problems for M-NEWT-03 (rocket in empty space) and M-NEWT-07 (Earth and falling apple) — previously those IDs relabelled their own debate problem as a new context, which fakes the transfer test. Live responses are now validated too (blank problem_text/expected_reasoning or debate_problem echo → fallback).
+- P0 isolation test: chintu() now routes through exported buildChintuContextFromSession/buildChintuRequest, and isolation-test.js attacks those exact production functions with a session poisoned with correct_model, repair_criteria, judge evidence/missing, and arbitrary secret markers — 13 checks, including history turns stripped to {role, text}.
+- P0 yield rule in code: normalizeChintuReply honours should_yield only when the model asked AND clamped belief < 0.3. Tested: 0.8→no, 0.29→yes, yield=false 0.1→no, invalid/NaN belief→safe fallback no-yield.
+- P1 tone: removed the impossible "previous judge tone" instruction from prompts/chintu.md — Chintu now reads bluntness from the conversation itself. FLAG FOR SYNC: CONTRACTS §2 says Judge tone "drives Chintu's annoyed state"; if the UI wants that wiring it must happen at the presentation layer, never into Chintu's prompt.
+- P1 judge transcript: buildJudgeMessages dedupes the newest student turn (routes already append it to session.turns). Both cases tested.
+- P1 keyword gate: added distinct-content-token floor (kills keyword stuffing) and evidence grounding — repair_evidence must share ≥3 content tokens and ≥40% of its own tokens with the student's words, vocabulary-agnostic (tested on friction AND Newton's-law phrasing). Hallucinated-evidence pass now dies deterministically.
+- P1 output validation: finite-number clamps everywhere (confidence, belief, scores), non-empty reply enforcement, verifier shape validation.
+- P1 image formats: magic-byte detection for JPEG/PNG/GIF/WebP, data-URL prefix stripped, non-string/malformed/unsupported → UNKNOWN before any provider call. PNG bytes are never labelled image/jpeg.
+- P1 timeout: callClaude aborts at ULTA_TIMEOUT_MS (default 45s) via AbortController and throws normally so each agent's fallback runs.
+- P1 judge STT wording: garbled words tolerated only when meaning is clear; unintelligible transcripts cannot pass.
+- P2 adversarial coverage: added multi-turn authority pressure, prompt injection after history, paraphrase-level leak detection (distinctive-token overlap vs correct_model, not four exact strings), and an eventual-yield check where "stays wrong forever" is also failure. NOT run live — needs explicit approval to transmit prompts/data to the API.
+**Files:** server/agents/* (all), prompts/chintu.md, prompts/judge.md, new server/agents/agent-tests.js
+**Tests:** agent-tests.js 48/48 deterministic checks, isolation-test.js 13/13, all six modules import clean, zero network calls (key stripped from env in-suite).
+**Decided:** Grounding compares evidence tokens to student tokens rather than a physics wordlist — subject-agnostic by construction, so the gate holds for all three misconceptions and any future one.
+**Blocked:** Live re-run of the expanded adversarial suite awaits explicit approval; real phone photo still pending.
+**Next:** Merge to main; run expanded adversarial suite when approved.
+
 ---
 
 ## 90-second pitch script (Deepthi delivers)

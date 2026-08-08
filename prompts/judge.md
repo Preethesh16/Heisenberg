@@ -26,7 +26,7 @@ tone: "harsh" when the student is blunt, dismissive, or repeating themselves wit
 repair_evidence: quote or closely paraphrase the part of the student's explanation that shows real understanding. Empty string if there is none.
 missing: the specific piece of reasoning still absent. Empty string if nothing is missing.
 
-The transcript may contain speech-to-text errors. Judge the meaning, not the transcription. Garbled words are never a reason to fail.
+The transcript may contain speech-to-text errors. Judge the meaning, not the transcription: minor garbled words are not penalized when the intended meaning is clear. But meaning is still the bar — if what the student actually communicated does not establish the repair criteria, fail, and name specifically what is missing. An unintelligible transcript cannot pass.
 
 Respond with ONLY a JSON object, no markdown fences, exactly this shape:
 
