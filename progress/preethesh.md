@@ -69,3 +69,10 @@
 **Decided:** Judge before Chintu, always sequential. Judge-first also means the verdict is never influenced by the rebuttal Chintu is composing to the same argument. Costs one agent-latency per turn over parallel; correctness of the live session wins.
 **Blocked:** No.
 **Next:** Hardware mic pass; Maya/Sarvam keys for live voice.
+
+### T+4:00 · main verification round after Jeswin's hardening merge
+**Did:** Pulled main (strict sessions, legal stage transitions, fail-closed judge, per-session fixture stories, CORS, TTL, and his accommodation for my judge-first ordering) and re-ran all three tiers against it: pure mock flow ✔, fixtures-mode audit suite ✔ (all eight checks, including backend sessionId on every call against the new strict-session server), fully live session ✔ (real vision → debate → judge pass → live transfer → M-FRIC-04 DEFEATED).
+**Files:** none — no web change needed.
+**Decided:** Nothing cut. One flake to flag for the team: the live Judge sometimes rejects the FIRST transfer answer with belief snapping to 0.85 even when the answer states the expected reasoning (seen once here, passed on retry; the earlier post-fix run passed first try). The UI handles it exactly as designed — stays on transfer, mic reopens, retry passes — so the demo survives it, but Deepthi may want to look at how the transfer verdict weighs history. Also: server warns MAYA_VOICE_ID is obsolete (use MAYA_VOICE=Ananya|Arjun) — whoever holds the Maya key should update server/.env.
+**Blocked:** No.
+**Next:** Demo-laptop run, backup recording, hardware mic pass.
