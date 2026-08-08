@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "test": "node core-tests.js && node agents/agent-tests.js && node agents/isolation-test.js",
+    "test:agents": "node agents/agent-tests.js && node agents/isolation-test.js",
+    "test:adversarial": "node --env-file=.env agents/adversarial-test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

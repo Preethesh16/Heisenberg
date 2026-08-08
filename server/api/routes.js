@@ -14,6 +14,8 @@ const EMOTIONS = new Set([
 ]);
 const MAX_IMAGE_BASE64 = 20 * 1024 * 1024; // ~15MB decoded
 const MAX_TTS_CHARS = 2000;
+const MAX_STUDENT_CHARS = 8000;
+const MAX_QUESTION_CHARS = 12000;
 
 const fail = (res, status, code) => res.status(status).json({ error: code, fallback: true });
 
@@ -85,6 +87,34 @@ async function nextSttFixture(sessionId) {
   return fixture(STT_STORY[i]);
 }
 
+export function chintuFallbackForSession(session, studentText) {
+  const diagnosis = session?.diagnosis;
+  if (!diagnosis?.dynamic) return null;
+  const belief = String(diagnosis.misconception || "my original rule");
+  const problem = String(diagnosis.debate_problem || "this problem");
+  return {
+    reply: studentText
+      ? `I still think ${belief} Show me exactly where that logic breaks in this problem.`
+      : `For ${problem} I am using this rule: ${belief} Why would you solve it differently?`,
+    emotion: studentText ? "stubborn" : "confident",
+    gesture: studentText ? null : "point_board",
+    belief_strength: session.beliefStrength,
+    should_yield: false,
+  };
+}
+
+export function transferFallbackForSession(session) {
+  const diagnosis = session?.diagnosis;
+  if (!diagnosis?.dynamic) return null;
+  const context = diagnosis.transfer_contexts?.[0] || `a different ${diagnosis.concept || diagnosis.topic} situation`;
+  return {
+    problem_text: `Consider ${String(context).toLowerCase()}. Apply the idea you just taught and explain what should happen, and why.`,
+    context_label: context,
+    expected_reasoning: diagnosis.correct_model,
+    misconception_id: diagnosis.misconception_id,
+  };
+}
+
 // A broken evaluator never advances the session (audit P0). Used only when the
 // judge module is missing, throws, or returns a malformed verdict in real mode.
 function failClosedVerdict(session) {
@@ -113,25 +143,43 @@ router.post("/diagnose", async (req, res) => {
   if (typeof imageBase64 !== "string" || imageBase64.length === 0) return fail(res, 400, "invalid_image");
   if (imageBase64.length > MAX_IMAGE_BASE64) return fail(res, 413, "image_too_large");
   if (questionText !== undefined && typeof questionText !== "string") return fail(res, 400, "invalid_request");
+  if (questionText?.length > MAX_QUESTION_CHARS) return fail(res, 400, "question_too_long");
 
-  const session = orch.createSession();
-  session.stage = "diagnosing";
   sttFixtureSeq = 0; // a fresh demo session restarts the fixture story
 
   let result = null;
-  if (!useFixtures()) {
+  if (useFixtures()) {
+    result = { ...(await fixture("diagnosis")), diagnosable: true, dynamic: false };
+  } else {
     const mod = await agent("diagnose");
     if (mod?.diagnose) {
       try {
         result = await mod.diagnose({ imageBase64, questionText });
       } catch (err) {
-        console.warn("[diagnose] agent failed, falling back to fixture:", err.message);
+        console.warn("[diagnose] agent failed:", err.message);
       }
     }
   }
-  // UNKNOWN, low confidence, or no agent → demo default (CLAUDE.md failure table)
-  if (!result || result.misconception_id === "UNKNOWN") result = await fixture("diagnosis");
 
+  // A live UNKNOWN is truthful. It must never become a convincing canned
+  // friction diagnosis for unrelated, correct, or illegible work.
+  if (!result || result.diagnosable === false || result.misconception_id === "UNKNOWN") {
+    return res.json({
+      diagnosable: false,
+      reason: result?.reason || "The work could not be diagnosed reliably. Try a clearer photo with the full question visible.",
+      topic: "",
+      concept: "",
+      misconception_id: "UNKNOWN",
+      misconception: "",
+      evidence: result?.evidence || "",
+      confidence: 0,
+      correct_model: "",
+      dynamic: true,
+    });
+  }
+
+  const session = orch.createSession();
+  session.stage = "diagnosing";
   orch.applyDiagnosis(session, result);
   // sessionId is additive to the frozen contract shape — flagged for sync
   res.json({ ...result, sessionId: session.id });
@@ -142,10 +190,18 @@ router.post("/chintu", async (req, res) => {
   if (!session) return;
   const { studentText } = req.body ?? {};
   if (studentText !== undefined && typeof studentText !== "string") return fail(res, 400, "invalid_request");
+  if (studentText?.length > MAX_STUDENT_CHARS) return fail(res, 400, "text_too_long");
   // Debate turns, plus the yield line: the frontend sequences judge-first, so
   // Chintu's reaction to a passing verdict arrives while the session sits in
   // "judging" (before /verify installs the transfer problem).
   if (session.stage !== "debate" && session.stage !== "judging") return fail(res, 409, "invalid_stage");
+  if (session.stage === "judging") {
+    const pending = session.pendingTurn;
+    const isExactJudgedReaction =
+      studentText && pending?.text === studentText &&
+      pending.seenBy?.has("judge") && !pending.seenBy?.has("chintu");
+    if (!isExactJudgedReaction) return fail(res, 409, "invalid_stage");
+  }
   // Empty text is legal only for Chintu's opening turn.
   if (!studentText && session.turns.some((t) => t.role === "student")) return fail(res, 400, "invalid_request");
 
@@ -162,7 +218,7 @@ router.post("/chintu", async (req, res) => {
       }
     }
   }
-  if (!out) out = await nextChintuFixture(session);
+  if (!out) out = chintuFallbackForSession(session, studentText) || await nextChintuFixture(session);
 
   orch.applyChintu(session, out);
   res.json(out);
@@ -173,6 +229,7 @@ router.post("/judge", async (req, res) => {
   if (!session) return;
   const { studentText } = req.body ?? {};
   if (typeof studentText !== "string" || studentText.length === 0) return fail(res, 400, "invalid_request");
+  if (studentText.length > MAX_STUDENT_CHARS) return fail(res, 400, "text_too_long");
 
   // Legal stages only: debate verdicts during debate, transfer verdicts only
   // once a transfer problem is installed. Anything else is rejected unchanged.
@@ -220,7 +277,7 @@ router.post("/verify", async (req, res) => {
       }
     }
   }
-  if (!out) out = await fixture("verify");
+  if (!out) out = transferFallbackForSession(session) || await fixture("verify");
 
   orch.applyTransfer(session, out);
   res.json(out);
@@ -228,10 +285,9 @@ router.post("/verify", async (req, res) => {
 
 router.post("/stt", upload.single("audio"), async (req, res) => {
   const lang = typeof req.body?.lang === "string" && req.body.lang ? req.body.lang : "en";
-  if (useFixtures()) return res.json(await nextSttFixture(req.body?.sessionId));
-
   if (!req.file || req.file.size === 0) return fail(res, 400, "missing_audio");
   if (!/^audio\//.test(req.file.mimetype || "")) return fail(res, 400, "invalid_audio");
+  if (useFixtures()) return res.json(await nextSttFixture(req.body?.sessionId));
 
   try {
     const out = await transcribe(req.file.buffer, req.file.mimetype, lang);

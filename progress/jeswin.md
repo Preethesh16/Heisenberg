@@ -1,5 +1,11 @@
 # Progress — Jeswin (`feat/core`)
 
+### 2026-08-08 · post-hackathon core audit
+**Did:** Re-audited the complete HTTP/orchestrator boundary. Added executable coverage for exact-session isolation, legal stage transitions, paired-route turn deduplication, post-pass Chintu restrictions, idempotent verification, transfer completion, cross-session fixture independence, bounded JSON/image/audio input, JSON-only errors, providerless fallbacks, dynamic concept fallbacks, and idle-session cleanup. Live unknown diagnoses no longer create a friction session. STT now receives `sessionId`; Sarvam defaults to the live-tested `saaras:v3` transcription path while retaining the legacy rollback.
+**Tests:** 21/21 core checks, both dependency audits clean, providerless routes and oversized uploads exercised manually, Maya-to-Sarvam round trip verified live.
+**Decided:** Real-mode Judge failures remain fail-closed, and no backend recovery path may invent M-FRIC-04 for a learner's upload.
+**Blocked:** No.
+
 ### T+3:30 · feat/core · (this commit)
 **Did:** Fixed all defects from the Codex deterministic audit. 43-check verification suite passes, plus two live smoke tests (blank-STT fallback, Maya through the new deadline wrapper).
 **Files:** server/orchestrator.js, server/api/routes.js, server/index.js, server/voice/sarvam.js, server/voice/maya.js, server/lib/http.js (new), fixtures/chintu-opener.json, fixtures/chintu-yield.json, fixtures/stt-1..3.json (new), fixtures/stt.json (removed), server/.env.example

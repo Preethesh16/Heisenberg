@@ -1,14 +1,12 @@
 // Sarvam STT. The ear — transcribes and nothing else (CLAUDE.md).
-// saarika:v2.5 is the live-verified default for today's demo. Sarvam's docs now
-// mark it legacy and recommend saaras:v3 with a mode parameter — supported here
-// behind SARVAM_STT_MODEL / SARVAM_STT_MODE, so the switch (and the rollback)
-// is a .env change. Flip only after a live check, never mid-demo.
+// saaras:v3 is the live-verified default. saarika:v2.5 remains a configuration
+// rollback if a venue-specific regression appears.
 
 import { fetchWithDeadline } from "../lib/http.js";
 
 const STT_URL = process.env.SARVAM_STT_URL || "https://api.sarvam.ai/speech-to-text";
-const MODEL = process.env.SARVAM_STT_MODEL || "saarika:v2.5";
-const MODE = process.env.SARVAM_STT_MODE || ""; // e.g. transcribe | codemix (saaras models only)
+const MODEL = process.env.SARVAM_STT_MODEL || "saaras:v3";
+const MODE = process.env.SARVAM_STT_MODE || "transcribe";
 const TIMEOUT_MS = Number(process.env.SARVAM_TIMEOUT_MS) || 15000;
 
 const LANG = { en: "en-IN", hi: "hi-IN", kn: "kn-IN" };
