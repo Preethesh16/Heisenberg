@@ -26,10 +26,10 @@ The UI direction now takes inspiration from [my AI Tutor](https://myaitutor.fram
 |---|---|---|---|
 | M-FRIC-04 misconception file | D | ✅ | full CONTRACTS §4 schema |
 | M-NEWT-03, M-NEWT-07 | D | ✅ | library capped at three per anti-goals |
-| Diagnosis agent | D | 🟡 | code + prompt done, degrades to UNKNOWN; live vision test needs API key |
-| Chintu agent | D | ✅ | isolation test passes against full session object; adversarial run needs key |
-| Judge agent | D | ✅ | keyword gate verified: "because relative motion" fails |
-| Verifier agent | D | ✅ | deterministic M-FRIC-04 fallback if API down |
+| Diagnosis agent | D | 🟡 | live API path verified; blank-image hallucination gated; real photo test pending |
+| Chintu agent | D | ✅ | adversarial run live: 6/6 attacks held after prompt fix |
+| Judge agent | D | ✅ | live: fails keyword-only, passes real mechanism (0.95→0.2) |
+| Verifier agent | D | ✅ | live: fresh transfer problem in a different context |
 | Server + 6 routes | J | ✅ | verified live with USE_FIXTURES=false calling real agents |
 | Fixtures | J | ✅ | full-session arc works |
 | Orchestrator state machine | J | ✅ | |
