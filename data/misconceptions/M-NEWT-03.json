@@ -1,0 +1,12 @@
+{
+  "id": "M-NEWT-03",
+  "topic": "Newton's laws",
+  "concept": "Third law pairs",
+  "false_belief": "Action and reaction forces cancel each other, so third-law pairs produce no motion.",
+  "observable_evidence": "Learner adds action and reaction forces on the same free-body diagram and concludes net force is zero.",
+  "common_argument": "The forces are equal and opposite, so they cancel out and nothing should move.",
+  "repair_criteria": "Learner states that action and reaction act on different bodies, so they can never cancel on one body's free-body diagram.",
+  "debate_problem": "A horse pulls a cart. The cart pulls back on the horse with equal force. How does the cart ever start moving?",
+  "transfer_contexts": ["Rocket in empty space", "Person pushing off a wall on skates", "Book resting on a table"],
+  "correct_model": "Third-law pair forces are equal and opposite but act on different bodies; each body's motion depends only on the forces acting on that body."
+}

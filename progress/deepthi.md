@@ -13,3 +13,10 @@
 **Decided:** API failure returns an in-character confused line ("say that again?") with belief unchanged, never an error — a crashed Chintu breaking character would be worse than a lost turn. Yield is gated in the prompt: belief below 0.3 AND no comeback left, stepping through confused → surprised → convinced, so he can't fold to keywords.
 **Blocked:** Same as before — no API key, so adversarial "trick him into being helpful" testing waits for a key. Isolation boundary is verified structurally.
 **Next:** Judge agent — must fail keyword-only answers.
+
+### T+1:50 · feat/agents · 1e9d7f2
+**Did:** Judge and Verifier. Judge returns the CONTRACTS §2 shape with clamped scores and tone. Tested the required case: "because relative motion" returns passed: false even when a stubbed generous model says pass — verified with a stub since there's no API key. Verifier picks a transfer_context different from the debate context and degrades to a canned M-FRIC-04 transfer problem if the API is down.
+**Files:** prompts/judge.md, prompts/verify.md, server/agents/judge.js, server/agents/verify.js
+**Decided:** The keyword rule is enforced twice — in the prompt AND a code gate (a pass with empty repair_evidence or under 8 words downgrades to fail). Prompts alone drift under pressure; the gate makes the demo-critical behaviour deterministic. Judge outage returns passed: false with "continue the debate", because a wrongly-passed session is worse than one extra debate turn.
+**Blocked:** No.
+**Next:** M-NEWT-03 and M-NEWT-07 misconception files, then push.

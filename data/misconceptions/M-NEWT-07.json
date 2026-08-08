@@ -1,0 +1,12 @@
+{
+  "id": "M-NEWT-07",
+  "topic": "Newton's laws",
+  "concept": "Force magnitude in interactions",
+  "false_belief": "A heavier or faster body exerts a greater force on a lighter one during an interaction.",
+  "observable_evidence": "Learner assigns a larger contact force to the more massive or faster object in a collision or contact problem.",
+  "common_argument": "Obviously the truck hits the scooter harder than the scooter hits the truck — just look at the damage.",
+  "repair_criteria": "Learner states the interaction forces are equal in magnitude and explains the different outcomes through different masses producing different accelerations.",
+  "debate_problem": "A loaded truck collides head-on with a scooter. During the impact, which vehicle exerts the larger force on the other?",
+  "transfer_contexts": ["Earth and a falling apple", "Boxer punching a heavy bag", "Tug of war between unequal teams"],
+  "correct_model": "Interaction forces between two bodies are always equal in magnitude and opposite in direction; the lighter body suffers more because equal force on smaller mass gives larger acceleration."
+}
